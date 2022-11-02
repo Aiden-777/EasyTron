@@ -1,4 +1,4 @@
-package org.tron.easywork;
+package org.tron.easywork.demo;
 
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;

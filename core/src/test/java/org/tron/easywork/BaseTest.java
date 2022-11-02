@@ -1,5 +1,6 @@
 package org.tron.easywork;
 
+import io.netty.util.internal.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.tron.easywork.factory.ApiWrapperFactory;
@@ -7,7 +8,6 @@ import org.tron.easywork.model.AccountInfo;
 import org.tron.trident.core.ApiWrapper;
 import org.tron.trident.utils.Convert;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.Properties;
@@ -47,7 +47,7 @@ public class BaseTest {
      * 变量初始化
      */
     @Before
-    public void init() throws IOException {
+    public void init() throws Exception {
         InputStream in = this.getClass().getClassLoader().getResourceAsStream("config.properties");
 
         Properties properties = new Properties();
@@ -55,6 +55,13 @@ public class BaseTest {
 
         assert in != null;
         in.close();
+
+        for (Object o : properties.values()) {
+            String v = (String) o;
+            if (StringUtil.isNullOrEmpty(v)) {
+                throw new Exception("配置文件填写不完整：core/src/test/resources/config.properties");
+            }
+        }
 
         apiKey = properties.getProperty("apiKey");
         privateKey = properties.getProperty("privateKey");
