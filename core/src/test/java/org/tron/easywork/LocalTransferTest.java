@@ -7,6 +7,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.Test;
+import org.tron.easywork.demo.DemoLocalTransferHandler;
 import org.tron.easywork.exception.SmartParamDecodeException;
 import org.tron.easywork.factory.ApiWrapperFactory;
 import org.tron.easywork.handler.transfer.*;

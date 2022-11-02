@@ -12,6 +12,8 @@ import org.tron.easywork.exception.SmartParamDecodeException;
 import org.tron.easywork.factory.ApiWrapperFactory;
 import org.tron.easywork.handler.contract.TransferContractHandler;
 import org.tron.easywork.handler.contract.TriggerSmartContractHandler;
+import org.tron.easywork.handler.transfer.Trc20TransferHandler;
+import org.tron.easywork.handler.transfer.TrxTransferHandler;
 import org.tron.easywork.model.*;
 import org.tron.easywork.util.*;
 import org.tron.trident.core.ApiWrapper;
@@ -42,7 +44,6 @@ import java.util.List;
 @Slf4j
 public class TransactionTest extends BaseTest {
 
-
     /**
      * 地址格式转换
      */
@@ -53,7 +54,6 @@ public class TransactionTest extends BaseTest {
         String hex = Hex.toHexString(bs);
         log.debug(hex);
     }
-
 
     /**
      * 是否为Tron地址
@@ -164,7 +164,7 @@ public class TransactionTest extends BaseTest {
 
 
     /**
-     * trx 转账 - 非本地构造交易
+     * trx 转账 - 非本地构造交易 - 过时的
      */
     @Test
     public void transferTrx() throws IllegalException {
@@ -182,10 +182,10 @@ public class TransactionTest extends BaseTest {
     }
 
     /**
-     * trc20 转账- 非本地构造交易
+     * trc20 转账- 非本地构造交易 - 过时的
      */
     @Test
-    public void transfer_trc20() {
+    public void transferTrc20() {
         // 金额
         BigDecimal amount = BigDecimal.valueOf(1);
         // trc20 合约信息
@@ -207,6 +207,64 @@ public class TransactionTest extends BaseTest {
         String id = handler.transfer(trc20TransferInfo, null);
         log.debug("交易ID：{}", id);
     }
+
+    /**
+     * trx 转账 - 本地构造交易
+     */
+    @Test
+    public void transferTrxLocal() throws IllegalException {
+        // 引用区块
+        Chain.Block nowBlock = wrapper.getNowBlock();
+        // 转账金额 单位 sum
+        BigDecimal amount = Convert.toSun("1", Convert.Unit.TRX);
+        // 构造转账交易
+        TransferInfo transferInfo = new TransferInfo(fromAccount.getBase58CheckAddress(), toAddress, amount);
+        // 备注
+        transferInfo.setMemo("一个备注");
+        // trx 转账处理器
+        TrxTransferHandler handler = new TrxTransferHandler();
+        // 转账并返回交易ID
+        Chain.Transaction transaction = handler.buildLocalTransfer(transferInfo, nowBlock.getBlockHeader());
+        // 签名
+        Chain.Transaction signTransaction = wrapper.signTransaction(transaction);
+        // 广播
+        String id = wrapper.broadcastTransaction(signTransaction);
+        log.debug(id);
+    }
+
+    /**
+     * trc20 转账- 本地构造交易
+     */
+    @Test
+    public void transferTrc20Local() throws IllegalException {
+        // 引用区块
+        Chain.Block nowBlock = wrapper.getNowBlock();
+        // 金额
+        BigDecimal amount = BigDecimal.valueOf(1);
+        // trc20 合约信息
+        Trc20ContractInfo trc20ContractInfo = ContractUtils.readTrc20ContractInfo(testContractAddress, wrapper);
+        // 获取系统转账金额
+        BigDecimal transferAmount = trc20ContractInfo.getTransferAmount(amount);
+        // 转账交易信息
+        Trc20TransferInfo trc20TransferInfo = new Trc20TransferInfo(
+                fromAccount.getBase58CheckAddress(),
+                toAddress,
+                transferAmount,
+                trc20ContractInfo.getAddress()
+        );
+        // 备注
+        trc20TransferInfo.setMemo("备注：trc20 转账");
+        // trc20 转账处理器
+        Trc20TransferHandler handler = new Trc20TransferHandler();
+        // 转账并返回交易ID
+        Chain.Transaction transaction = handler.buildLocalTransfer(trc20TransferInfo, nowBlock.getBlockHeader());
+        // 签名
+        Chain.Transaction signTransaction = wrapper.signTransaction(transaction);
+        // 广播
+        String id = wrapper.broadcastTransaction(signTransaction);
+        log.debug(id);
+    }
+
 
     // 原始授权
     // @Test
@@ -326,6 +384,32 @@ public class TransactionTest extends BaseTest {
     }
 
     /**
+     * 解析trc20合约转账数据
+     */
+    @Test
+    public void parseData() throws SmartParamDecodeException, FunctionSelectorException {
+        String data = "a9059cbb0000000000000000000000001391667f4940d9f58d2779d92357e714f5bf3ea900000000000000000000000000000000000000000000000000000000005ffab4";
+        TransferFunctionParam transferFunctionParam = SmartContractParser.getTransferFunctionParam(data);
+        log.debug(transferFunctionParam.toString());
+    }
+
+    /**
+     * 验证trc20交易是否成功
+     */
+    @Test
+    public void isSuccess() throws IllegalException {
+        String tid = "218414bb71d49037de6d49009fb6e4f49834aea8bda11037dc347130b6c88dbf";
+        Chain.Transaction transaction = wrapper.getTransactionById(tid);
+        boolean status = transaction.getRet(0).getContractRet().getNumber() == 1;
+        log.debug("{},{}", status ? "成功" : "失败", tid);
+
+        tid = "17ac1d482f373752a094adf5632c61e55c807f91aa79cd794106c7d811dae8e8";
+        transaction = wrapper.getTransactionById(tid);
+        status = transaction.getRet(0).getContractRet().getNumber() == 1;
+        log.debug("{},{}", status ? "成功" : "失败", tid);
+    }
+
+    /**
      * 获取区块中的交易信息 （demo级别）
      */
     @Test
@@ -388,32 +472,6 @@ public class TransactionTest extends BaseTest {
                     }
                 }
         );
-    }
-
-    /**
-     * 解析trc20合约转账数据
-     */
-    @Test
-    public void parseData() throws SmartParamDecodeException, FunctionSelectorException {
-        String data = "a9059cbb0000000000000000000000001391667f4940d9f58d2779d92357e714f5bf3ea900000000000000000000000000000000000000000000000000000000005ffab4";
-        TransferFunctionParam transferFunctionParam = SmartContractParser.getTransferFunctionParam(data);
-        log.debug(transferFunctionParam.toString());
-    }
-
-    /**
-     * 验证trc20交易是否成功
-     */
-    @Test
-    public void isSuccess() throws IllegalException {
-        String tid = "218414bb71d49037de6d49009fb6e4f49834aea8bda11037dc347130b6c88dbf";
-        Chain.Transaction transaction = wrapper.getTransactionById(tid);
-        boolean status = transaction.getRet(0).getContractRet().getNumber() == 1;
-        log.debug("{},{}", status ? "成功" : "失败", tid);
-
-        tid = "17ac1d482f373752a094adf5632c61e55c807f91aa79cd794106c7d811dae8e8";
-        transaction = wrapper.getTransactionById(tid);
-        status = transaction.getRet(0).getContractRet().getNumber() == 1;
-        log.debug("{},{}", status ? "成功" : "失败", tid);
     }
 
     /**
@@ -535,7 +593,7 @@ public class TransactionTest extends BaseTest {
     }
 
     /**
-     * 封装多签 - 非本地构造交易
+     * 封装多签 - 非本地构造交易 - 过时的
      */
     // @Test
     public void multiSignature2() throws IllegalException {
