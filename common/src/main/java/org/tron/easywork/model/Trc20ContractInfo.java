@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.ToString;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  * 智能合约 模型
@@ -44,6 +45,17 @@ public class Trc20ContractInfo {
      * @return 转账金额
      */
     public BigDecimal getTransferAmount(BigDecimal realAmount) {
-        return realAmount.multiply(BigDecimal.TEN.pow(decimals.intValue()));
+        return realAmount.multiply(rate);
     }
+
+    /**
+     * 获取真实金额
+     *
+     * @param transferAmount 转账金额
+     * @return 真实金额
+     */
+    public BigDecimal getRealAmount(BigDecimal transferAmount) {
+        return transferAmount.divide(rate, decimals.intValue(), RoundingMode.DOWN);
+    }
+
 }
