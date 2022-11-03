@@ -41,7 +41,7 @@ public class TronConverter {
      * @return 真实金额
      */
     public static BigDecimal getRealAmount(BigDecimal transferAmount, int decimals) {
-        return transferAmount.divide(BigDecimal.TEN.pow(decimals), RoundingMode.HALF_UP);
+        return transferAmount.divide(BigDecimal.TEN.pow(decimals), decimals, RoundingMode.DOWN);
     }
 
     /**
