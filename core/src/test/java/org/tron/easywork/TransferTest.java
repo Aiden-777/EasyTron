@@ -44,7 +44,7 @@ public class TransferTest extends BaseTest {
         // 转账并返回交易ID
         Chain.Transaction transaction = handler.buildLocalTransfer(transferInfo, nowBlock.getBlockHeader());
         // 签名
-        Chain.Transaction signTransaction = wrapper.signTransaction(transaction);
+        Chain.Transaction signTransaction = wrapper.signTransaction(transaction, fromAccount.getKeyPair());
         // 广播
         String id = wrapper.broadcastTransaction(signTransaction);
         log.debug(id);
@@ -58,29 +58,31 @@ public class TransferTest extends BaseTest {
         // 引用区块
         Chain.Block nowBlock = wrapper.getNowBlock();
         // 金额
-        BigDecimal amount = BigDecimal.valueOf(1);
-        // trc20 合约信息
-        Trc20ContractInfo trc20ContractInfo = ContractUtils.readTrc20ContractInfo(testContractAddress, wrapper);
-        // 获取系统转账金额
-        BigDecimal transferAmount = trc20ContractInfo.getTransferAmount(amount);
-        // 转账交易信息
-        Trc20TransferInfo trc20TransferInfo = new Trc20TransferInfo(
-                fromAccount.getBase58CheckAddress(),
-                toAddress,
-                transferAmount,
-                trc20ContractInfo.getAddress()
-        );
-        // 备注
-        trc20TransferInfo.setMemo("备注：trc20 转账");
-        // trc20 转账处理器
-        Trc20TransferHandler handler = new Trc20TransferHandler();
-        // 转账并返回交易ID
-        Chain.Transaction transaction = handler.buildLocalTransfer(trc20TransferInfo, nowBlock.getBlockHeader());
-        // 签名
-        Chain.Transaction signTransaction = wrapper.signTransaction(transaction);
-        // 广播
-        String id = wrapper.broadcastTransaction(signTransaction);
-        log.debug(id);
+        BigDecimal amount = BigDecimal.valueOf(0.1);
+        for (int i = 0; i < 1; i++) {
+            // trc20 合约信息
+            Trc20ContractInfo trc20ContractInfo = ContractUtils.readTrc20ContractInfo(testContractAddress, wrapper);
+            // 获取系统转账金额
+            BigDecimal transferAmount = trc20ContractInfo.getTransferAmount(amount);
+            // 转账交易信息
+            Trc20TransferInfo trc20TransferInfo = new Trc20TransferInfo(
+                    fromAccount.getBase58CheckAddress(),
+                    toAddress,
+                    transferAmount,
+                    trc20ContractInfo.getAddress()
+            );
+            // 备注
+            trc20TransferInfo.setMemo("备注：trc20 转账");
+            // trc20 转账处理器
+            Trc20TransferHandler handler = new Trc20TransferHandler();
+            // 转账并返回交易ID
+            Chain.Transaction transaction = handler.buildLocalTransfer(trc20TransferInfo, nowBlock.getBlockHeader());
+            // 签名
+            Chain.Transaction signTransaction = wrapper.signTransaction(transaction);
+            // 广播
+            String id = wrapper.broadcastTransaction(signTransaction);
+            log.debug(id);
+        }
     }
 
 
