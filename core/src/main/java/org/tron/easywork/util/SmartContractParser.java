@@ -7,8 +7,10 @@ import org.tron.easywork.exception.FunctionSelectorException;
 import org.tron.easywork.exception.SmartParamDecodeException;
 import org.tron.easywork.model.TransferFunctionParam;
 import org.tron.trident.abi.TypeDecoder;
+import org.tron.trident.abi.TypeReference;
 import org.tron.trident.abi.datatypes.Address;
 import org.tron.trident.abi.datatypes.NumericType;
+import org.tron.trident.abi.datatypes.generated.Uint256;
 import org.tron.trident.proto.Contract;
 
 import java.math.BigDecimal;
@@ -53,8 +55,10 @@ public class SmartContractParser {
         // 发送金额
         String amount = data.substring(72, 136);
         try {
-            Address addressType = (Address) TypeDecoder.instantiateType("address", toAddress);
-            NumericType amountType = (NumericType) TypeDecoder.instantiateType("uint256", amount);
+            Address addressType = (Address) TypeDecoder.instantiateType(new TypeReference<Address>() {
+            }, toAddress);
+            NumericType amountType = (NumericType) TypeDecoder.instantiateType(new TypeReference<Uint256>() {
+            }, amount);
             return new TransferFunctionParam(addressType.getValue(), new BigDecimal(amountType.getValue()));
         } catch (Exception e) {
             throw new SmartParamDecodeException("智能合约转账函数参数异常:" + data, e.getCause());
