@@ -11,26 +11,19 @@ import org.tron.easywork.handler.transfer.Trc20TransferHandler;
 import org.tron.easywork.handler.transfer.TrxTransferHandler;
 import org.tron.easywork.model.TransferInfo;
 import org.tron.easywork.model.Trc10TransferInfo;
+import org.tron.easywork.model.Trc20ContractInfo;
 import org.tron.easywork.model.Trc20TransferInfo;
+import org.tron.easywork.util.Trc20Utils;
 import org.tron.easywork.util.TronConverter;
-import org.tron.trident.abi.FunctionEncoder;
-import org.tron.trident.abi.FunctionReturnDecoder;
-import org.tron.trident.abi.TypeReference;
-import org.tron.trident.abi.datatypes.Address;
-import org.tron.trident.abi.datatypes.Function;
-import org.tron.trident.abi.datatypes.generated.Uint256;
-import org.tron.trident.core.ApiWrapper;
 import org.tron.trident.core.contract.Contract;
 import org.tron.trident.core.contract.Trc20Contract;
 import org.tron.trident.core.exceptions.IllegalException;
 import org.tron.trident.proto.Chain;
 import org.tron.trident.proto.Response;
 import org.tron.trident.utils.Convert;
-import org.tron.trident.utils.Numeric;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.List;
 
 /**
  * 从链上获取信息
@@ -138,26 +131,14 @@ public class GetInfoTest extends BaseTest {
     @Test
     public void balanceOfTrc20() {
         // 地址
-        String address = "TBjxJTNwZeaKrbHyDum5Rwj1xU99999n8Z";
-        // 构造trc20查余额函数
-        Function balanceOf = new Function(
-                "balanceOf",
-                List.of(new Address(address)),
-                List.of(new TypeReference<Uint256>() {
-                })
-        );
-        // 编码
-        String encodedHex = FunctionEncoder.encode(balanceOf);
-        // 构造trc20合约信息
-        org.tron.trident.proto.Contract.TriggerSmartContract contract = org.tron.trident.proto.Contract.TriggerSmartContract.newBuilder()
-                .setContractAddress(ApiWrapper.parseAddress(testContractAddress))
-                .setData(ApiWrapper.parseHex(encodedHex))
-                .build();
-        Response.TransactionExtention tx = wrapper.blockingStub.triggerConstantContract(contract);
+        String address = "TP6QorvxAJ4bXg21LterCpGi5oZ2PxybCZ";
+        BigDecimal transferAmount = Trc20Utils.trc20BalanceOf(testContractAddress, address, wrapper);
+        log.debug("Trc20余额:{}", transferAmount);
 
-        String result = Numeric.toHexString(tx.getConstantResult(0).toByteArray());
-        BigInteger value = (BigInteger) FunctionReturnDecoder.decode(result, balanceOf.getOutputParameters()).get(0).getValue();
-        log.debug(value.toString());
+        // 合约信息
+        Trc20ContractInfo trc20ContractInfo = Trc20Utils.readTrc20ContractInfo(testContractAddress, wrapper);
+        BigDecimal realAmount = trc20ContractInfo.getRealAmount(transferAmount).stripTrailingZeros();
+        log.debug("Trc20真实余额：{}个", realAmount);
     }
 
     /**

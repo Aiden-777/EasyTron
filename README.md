@@ -48,12 +48,12 @@ Donate：TTTTTtczA5UZM65QJpncXUsH8KwgJTHyXw
     <dependency>
         <groupId>org.tron.easywork</groupId>
         <artifactId>core</artifactId>
-        <version>1.2.1</version>
+        <version>1.2.2</version>
     </dependency>
     <dependency>
         <groupId>org.tron.easywork</groupId>
         <artifactId>common</artifactId>
-        <version>1.2.1</version>
+        <version>1.2.2</version>
     </dependency>
     
 </dependencies>

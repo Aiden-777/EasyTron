@@ -227,4 +227,21 @@ public class SomeTest extends BaseTest {
         log.debug("{},{}", status ? "成功" : "失败", tid);
     }
 
+
+    /**
+     * trx 与 sun 转换
+     */
+    @Test
+    public void convert() {
+        // 1 trx
+        BigDecimal trx = BigDecimal.ONE;
+        BigDecimal sunBalance = Convert.toSun(trx, Convert.Unit.TRX);
+        log.debug("1trx={}sun", sunBalance);
+
+        // 1000000 sun
+        BigDecimal sun = BigDecimal.valueOf(1000000);
+        BigDecimal trxBalance = Convert.fromSun(sun, Convert.Unit.TRX);
+        log.debug("1000000sun={}trx", trxBalance);
+    }
+
 }
