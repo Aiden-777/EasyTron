@@ -12,7 +12,7 @@ import org.tron.easywork.handler.transfer.Trc20TransferHandler;
 import org.tron.easywork.handler.transfer.TrxTransferHandler;
 import org.tron.easywork.model.*;
 import org.tron.easywork.util.BlockParser;
-import org.tron.easywork.util.ContractUtils;
+import org.tron.easywork.util.Trc20Utils;
 import org.tron.trident.abi.FunctionEncoder;
 import org.tron.trident.abi.TypeReference;
 import org.tron.trident.abi.datatypes.Address;
@@ -55,7 +55,7 @@ public class LocalTransferTest extends BaseTest {
         // 实际转账金额
         BigDecimal realAmount = BigDecimal.valueOf(1);
         // 合约
-        Trc20ContractInfo trc20ContractInfo = ContractUtils.readTrc20ContractInfo(testContractAddress, wrapper);
+        Trc20ContractInfo trc20ContractInfo = Trc20Utils.readTrc20ContractInfo(testContractAddress, wrapper);
         // 系统转账金额
         BigDecimal transferAmount = trc20ContractInfo.getTransferAmount(realAmount);
         // 构造trc20交易
@@ -95,7 +95,7 @@ public class LocalTransferTest extends BaseTest {
         // 实际转账金额
         BigDecimal realAmount = BigDecimal.valueOf(1);
         // 合约
-        Trc20ContractInfo trc20ContractInfo = ContractUtils.readTrc20ContractInfo(testContractAddress, wrapper);
+        Trc20ContractInfo trc20ContractInfo = Trc20Utils.readTrc20ContractInfo(testContractAddress, wrapper);
         // 系统转账金额
         BigDecimal transferAmount = trc20ContractInfo.getTransferAmount(realAmount);
         // 构造trc20交易
@@ -233,7 +233,7 @@ public class LocalTransferTest extends BaseTest {
         // 转账金额
         BigDecimal realAmount = BigDecimal.valueOf(1);
         // 合约
-        Trc20ContractInfo trc20ContractInfo = ContractUtils.readTrc20ContractInfo(testContractAddress, wrapper);
+        Trc20ContractInfo trc20ContractInfo = Trc20Utils.readTrc20ContractInfo(testContractAddress, wrapper);
         // 转账金额
         BigDecimal transferAmount = trc20ContractInfo.getTransferAmount(realAmount);
         // 构造trc20 转账
