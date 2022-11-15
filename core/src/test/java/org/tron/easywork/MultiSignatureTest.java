@@ -239,4 +239,44 @@ public class MultiSignatureTest extends BaseTest {
 
     }
 
+
+    /**
+     * 多签质押演示
+     */
+//    @Test
+    public void freezeBalance() throws IllegalException {
+        // TKjPqKq77777FPKUdLRMPNUWtU4jNEpUQF   主账号(此处仅用到地址)
+        AccountInfo account = new AccountInfo("");
+        // TBjxJTNwZeaKrbHyDum5Rwj1xU99999n8Z   具有某些活动权限
+        AccountInfo account1 = new AccountInfo("");
+        // TEczEK6uzD88888QhstH6QDwB167ZsXPrb   具有某些活动权限
+        AccountInfo account2 = new AccountInfo("");
+
+        BigDecimal amount = BigDecimal.valueOf(100);
+        BigDecimal transferAmount = Convert.toSun(amount, Convert.Unit.TRX);
+
+        // 请求远程构造交易
+        Response.TransactionExtention transactionExtention = wrapper.freezeBalance(
+                account.getBase58CheckAddress(),
+                transferAmount.longValue(),
+                3,
+                Common.ResourceCode.ENERGY_VALUE,
+                "TBB3jfSew1ygkwhFf4Fjqq3LLSys77777P"
+        );
+        // 获取交易构造器
+        Chain.Transaction.Builder builder = transactionExtention.getTransaction().toBuilder();
+        // 设置权限ID
+        builder.getRawDataBuilder().getContractBuilder(0).setPermissionId(2);
+        // 构造交易
+        Chain.Transaction transaction = builder.build();
+
+        // B 签名
+        Chain.Transaction signTransaction = wrapper.signTransaction(transaction, account1.getKeyPair());
+        // C 签名
+        signTransaction = wrapper.signTransaction(signTransaction, account2.getKeyPair());
+        // 广播
+        String tid = wrapper.broadcastTransaction(signTransaction);
+        log.debug(tid);
+    }
+
 }
