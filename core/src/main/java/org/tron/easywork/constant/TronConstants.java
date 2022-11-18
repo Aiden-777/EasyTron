@@ -20,7 +20,8 @@ public final class TronConstants {
     public static final BigDecimal TRX_SUN_RATE = new BigDecimal(1000000);
 
     /**
-     * 转账事件
+     * Transfer事件 - Event Log
+     * <a href="https://cn.developers.tron.network/docs/event#log-%E8%A7%A3%E7%A0%81">LOG 解码</a>
      * 通过keccak256计算后的结果
      * 等于【ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef】
      */
