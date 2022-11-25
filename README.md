@@ -1,4 +1,5 @@
 # EasyTron
+
 依赖 [trident-java](https://github.com/tronprotocol/trident) 的轻量扩展封装，区块解码将变得十分简单
 
 测试用例（包含各种方法运用思路）： core/src/test/java/org/tron/easywork
@@ -14,14 +15,14 @@ Donate：TTTTTtczA5UZM65QJpncXUsH8KwgJTHyXw
 在其他地方使用这个库，必要依赖：
 
 ```xml
+
 <dependencies>
-    
+
     <dependency>
         <groupId>io.grpc</groupId>
         <artifactId>grpc-all</artifactId>
-        <version>1.50.2</version>
+        <version>1.51.0</version>
     </dependency>
-
     <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcprov-jdk18on</artifactId>
@@ -33,7 +34,6 @@ Donate：TTTTTtczA5UZM65QJpncXUsH8KwgJTHyXw
         <artifactId>abi</artifactId>
         <version>0.3.0</version>
     </dependency>
-
     <dependency>
         <groupId>org.tron.trident</groupId>
         <artifactId>utils</artifactId>
@@ -55,6 +55,6 @@ Donate：TTTTTtczA5UZM65QJpncXUsH8KwgJTHyXw
         <artifactId>common</artifactId>
         <version>1.2.2</version>
     </dependency>
-    
+
 </dependencies>
 ```

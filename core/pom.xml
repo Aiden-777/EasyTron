@@ -29,7 +29,7 @@
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-all</artifactId>
-            <version>1.50.2</version>
+            <version>1.51.0</version>
             <scope>provided</scope>
         </dependency>
 
@@ -63,14 +63,14 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>2.0.3</version>
-            <scope>provided</scope>
+            <version>2.0.4</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.4.4</version>
+            <version>1.4.5</version>
             <scope>test</scope>
         </dependency>
 
