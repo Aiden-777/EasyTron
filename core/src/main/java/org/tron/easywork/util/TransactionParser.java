@@ -1,7 +1,6 @@
 package org.tron.easywork.util;
 
 import com.google.protobuf.ByteString;
-import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.util.encoders.Hex;
 import org.tron.easywork.exception.FunctionSelectorException;
 import org.tron.easywork.exception.SmartParamDecodeException;
@@ -22,7 +21,6 @@ import java.math.BigInteger;
  * @version 1.0
  * @time 2022-04-01 16:52
  */
-@Slf4j
 public class TransactionParser {
 
     /**

@@ -3,7 +3,6 @@ package org.tron.easywork.handler.contract;
 import com.google.protobuf.Any;
 import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.InvalidProtocolBufferException;
-import lombok.extern.slf4j.Slf4j;
 import org.tron.easywork.exception.FunctionSelectorException;
 import org.tron.easywork.exception.SmartParamDecodeException;
 import org.tron.easywork.model.TransferInfo;
@@ -35,7 +34,6 @@ import java.util.concurrent.atomic.AtomicReference;
  * @time 2022-04-02 14:47
  */
 @Deprecated
-@Slf4j
 public class TriggerSmartContractHandler extends ContractHandlerAbstract {
 
     /**

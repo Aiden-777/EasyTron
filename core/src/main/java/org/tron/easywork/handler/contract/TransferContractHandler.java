@@ -4,7 +4,6 @@ import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.InvalidProtocolBufferException;
-import lombok.extern.slf4j.Slf4j;
 import org.tron.easywork.model.TransferInfo;
 import org.tron.easywork.util.TransactionParser;
 import org.tron.trident.core.ApiWrapper;
@@ -25,7 +24,6 @@ import java.util.concurrent.atomic.AtomicReference;
  * @time 2022-04-02 14:52
  */
 @Deprecated
-@Slf4j
 public class TransferContractHandler extends ContractHandlerAbstract {
 
     public TransferContractHandler(ApiWrapper wrapper) {

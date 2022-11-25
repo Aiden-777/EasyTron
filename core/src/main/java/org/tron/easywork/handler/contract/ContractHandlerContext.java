@@ -1,6 +1,5 @@
 package org.tron.easywork.handler.contract;
 
-import lombok.extern.slf4j.Slf4j;
 import org.tron.trident.proto.Chain;
 
 import java.util.Map;
@@ -11,7 +10,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * @version 1.0
  * @time 2022-04-02 15:05
  */
-@Slf4j
 @Deprecated
 public class ContractHandlerContext {
 

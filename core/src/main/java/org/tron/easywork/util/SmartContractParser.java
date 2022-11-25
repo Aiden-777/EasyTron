@@ -1,6 +1,5 @@
 package org.tron.easywork.util;
 
-import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.util.encoders.Hex;
 import org.tron.easywork.constant.TronConstants;
 import org.tron.easywork.exception.FunctionSelectorException;
@@ -22,7 +21,6 @@ import java.math.BigDecimal;
  * @version 1.0
  * @time 2022-04-01 13:36
  */
-@Slf4j
 public class SmartContractParser {
 
     /**

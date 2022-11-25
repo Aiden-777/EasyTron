@@ -3,7 +3,6 @@ package org.tron.easywork.handler.transfer;
 import com.google.protobuf.Any;
 import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.InvalidProtocolBufferException;
-import lombok.extern.slf4j.Slf4j;
 import org.tron.easywork.enums.TransferType;
 import org.tron.easywork.model.TransferInfo;
 import org.tron.easywork.util.TransactionParser;
@@ -16,7 +15,6 @@ import org.tron.trident.proto.Contract;
  * @version 1.0
  * @time 2022-10-30 18:48
  */
-@Slf4j
 public class TrxTransferHandler extends BaseTransferHandler {
 
     @Override
