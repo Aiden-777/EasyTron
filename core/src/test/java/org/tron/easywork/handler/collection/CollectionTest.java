@@ -1,9 +1,8 @@
-package org.tron.easywork;
+package org.tron.easywork.handler.collection;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-import org.tron.easywork.handler.collection.FundCollection;
-import org.tron.easywork.handler.collection.FundCollectionConfig;
+import org.tron.easywork.BaseTest;
 import org.tron.easywork.handler.transfer.Trc20TransferHandler;
 import org.tron.easywork.handler.transfer.TrxTransferHandler;
 import org.tron.easywork.util.Trc20Utils;
