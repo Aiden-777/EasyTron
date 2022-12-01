@@ -15,8 +15,8 @@ public class BaseConvert {
      * @param value 10 进制
      * @return 16
      */
-        public static String toBase16StringWhithZero(long value) {
-            String blockIdStart = Long.toHexString(value);
+    public static String toBase16StringWithZero(long value) {
+        String blockIdStart = Long.toHexString(value);
         String zeros = "0".repeat(16 - blockIdStart.length());
         return zeros + blockIdStart;
     }
