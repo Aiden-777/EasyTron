@@ -36,7 +36,7 @@ public class BlockParser {
         byte[] headerBytes = blockHeader.getRawData().toByteArray();
         byte[] bytes = Hash.sha256(headerBytes);
         String blockIdEnd = Hex.toHexString(bytes).substring(16);
-        String blockStart = BaseConvert.toBase16StringWhithZero(number);
+        String blockStart = BaseConvert.toBase16StringWithZero(number);
         return blockStart + blockIdEnd;
     }
 }
