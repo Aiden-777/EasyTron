@@ -27,6 +27,9 @@ import java.util.List;
 
 /**
  * 多签相关
+ * <p>
+ * 创建活跃权限后，getAccount查询账户信息，可以获得permissionId。
+ * 如果是拥有者权限，无需改permissionId，直接多签。
  *
  * @author Admin
  * @version 1.0
@@ -46,10 +49,10 @@ public class MultiSignatureTest extends BaseTest {
         // TKjPqKq77777FPKUdLRMPNUWtU4jNEpUQF   主账号，业务所致此处未用到私钥
         AccountInfo account = new AccountInfo("");
 
-        // TBjxJTNwZeaKrbHyDum5Rwj1xU99999n8Z   Trx转账权限
+        // TBjxJTNwZeaKrbHyDum5Rwj1xU99999n8Z   具有某些活动权限
         AccountInfo account1 = new AccountInfo("");
 
-        // TEczEK6uzD88888QhstH6QDwB167ZsXPrb   Trx转账权限
+        // TEczEK6uzD88888QhstH6QDwB167ZsXPrb   具有某些活动权限
         AccountInfo account2 = new AccountInfo("");
 
         // 到账地址
@@ -85,20 +88,26 @@ public class MultiSignatureTest extends BaseTest {
     }
 
     /**
-     * 更新账户权限
+     * 更新账户权限，目前需要花费100trx
      */
     // @Test
     public void permissionUpdate() throws IllegalException {
         //TKjPqKq77777FPKUdLRMPNUWtU4jNEpUQF
         String privateKey = "";
 
+        // 分配给 1
+        String permissionAddress1 = "TBjxJTNwZeaKrbHyDum5Rwj1xU99999n8Z";
+        // 分配给 2
+        String permissionAddress2 = "TEczEK6uzD88888QhstH6QDwB167ZsXPrb";
+
         ApiWrapper wrapper = ApiWrapperFactory.create(ApiWrapperFactory.NetType.Shasta, privateKey, null);
 
+        // 账户信息
         AccountInfo account = new AccountInfo(privateKey);
-
+        // 我的地址 ByteString 格式
         ByteString ownerAddress = ByteString.copyFrom(Base58Check.base58ToBytes(account.getBase58CheckAddress()));
 
-        // 指定权限列表
+        // 指定权限列表，trident已经封装枚举类
         /*Integer[] contractId = {0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 30, 31,
                 32, 33, 41, 42, 43, 44, 45};*/
         Integer[] contractId = {1, Chain.Transaction.Contract.ContractType.TriggerSmartContract_VALUE};
@@ -107,9 +116,7 @@ public class MultiSignatureTest extends BaseTest {
         byte[] operations = new byte[32];
         list.forEach(e -> operations[e / 8] |= (1 << e % 8));
 
-        log.debug(String.valueOf(operations.length));
-
-
+        // 构造权限分配信息
         Contract.AccountPermissionUpdateContract accountPermissionUpdateContract =
                 Contract.AccountPermissionUpdateContract.newBuilder()
                         .setOwnerAddress(ownerAddress)
@@ -129,21 +136,23 @@ public class MultiSignatureTest extends BaseTest {
                                 org.tron.trident.proto.Common.Permission.newBuilder()
                                         .setType(Common.Permission.PermissionType.Active)
                                         .setPermissionName("test")
+                                        // 需要权重满足才执行操作
                                         .setThreshold(10)
-                                        .addKeys(Common.Key.newBuilder().setAddress(ByteString.copyFrom(Base58Check.base58ToBytes("TBjxJTNwZeaKrbHyDum5Rwj1xU99999n8Z"))).setWeight(5))
-                                        .addKeys(Common.Key.newBuilder().setAddress(ByteString.copyFrom(Base58Check.base58ToBytes("TEczEK6uzD88888QhstH6QDwB167ZsXPrb"))).setWeight(5))
+                                        // 添加权限、指定权重
+                                        .addKeys(Common.Key.newBuilder().setAddress(ByteString.copyFrom(Base58Check.base58ToBytes(permissionAddress1))).setWeight(5))
+                                        // 添加权限、指定权重
+                                        .addKeys(Common.Key.newBuilder().setAddress(ByteString.copyFrom(Base58Check.base58ToBytes(permissionAddress2))).setWeight(5))
                                         .setOperations(ByteString.copyFrom(operations))
                         )
                         .build();
 
-
+        // 发给节点，构造本次交易
         Response.TransactionExtention transactionExtention = wrapper.accountPermissionUpdate(accountPermissionUpdateContract);
-
+        // 签名
         Chain.Transaction signTransaction = wrapper.signTransaction(transactionExtention);
-
+        // 广播
         String id = wrapper.broadcastTransaction(signTransaction);
         log.debug(id);
-
     }
 
     /**
@@ -154,10 +163,10 @@ public class MultiSignatureTest extends BaseTest {
         // TKjPqKq77777FPKUdLRMPNUWtU4jNEpUQF   主账号，业务所致此处未用到私钥
         AccountInfo account = new AccountInfo("");
 
-        // TBjxJTNwZeaKrbHyDum5Rwj1xU99999n8Z   Trx转账权限
+        // TBjxJTNwZeaKrbHyDum5Rwj1xU99999n8Z   具有某些活动权限
         AccountInfo account1 = new AccountInfo("");
 
-        // TEczEK6uzD88888QhstH6QDwB167ZsXPrb   Trx转账权限
+        // TEczEK6uzD88888QhstH6QDwB167ZsXPrb   具有某些活动权限
         AccountInfo account2 = new AccountInfo("");
 
         ApiWrapper wrapper = ApiWrapperFactory.create(ApiWrapperFactory.NetType.Shasta, account.getHexPrivateKey(), null);
@@ -210,10 +219,10 @@ public class MultiSignatureTest extends BaseTest {
         // TKjPqKq77777FPKUdLRMPNUWtU4jNEpUQF   主账号，业务所致此处未用到私钥
         AccountInfo account = new AccountInfo("");
 
-        // TBjxJTNwZeaKrbHyDum5Rwj1xU99999n8Z   Trx转账权限
+        // TBjxJTNwZeaKrbHyDum5Rwj1xU99999n8Z   具有某些活动权限
         AccountInfo account1 = new AccountInfo("");
 
-        // TEczEK6uzD88888QhstH6QDwB167ZsXPrb   Trx转账权限
+        // TEczEK6uzD88888QhstH6QDwB167ZsXPrb   具有某些活动权限
         AccountInfo account2 = new AccountInfo("");
 
         ApiWrapper wrapper = ApiWrapperFactory.create(ApiWrapperFactory.NetType.Shasta, account.getHexPrivateKey(), null);
