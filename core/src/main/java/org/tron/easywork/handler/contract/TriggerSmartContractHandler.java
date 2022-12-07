@@ -37,9 +37,9 @@ import java.util.concurrent.atomic.AtomicReference;
 public class TriggerSmartContractHandler extends ContractHandlerAbstract {
 
     /**
-     * 默认矿工费限制 - 10TRX
+     * 默认矿工费限制 - 15TRX
      */
-    protected Long defaultFeeLimit = Convert.toSun(BigDecimal.TEN, Convert.Unit.TRX).longValue();
+    protected Long defaultFeeLimit = Convert.toSun(BigDecimal.valueOf(15), Convert.Unit.TRX).longValue();
 
     public TriggerSmartContractHandler(ApiWrapper wrapper) {
         super(wrapper);

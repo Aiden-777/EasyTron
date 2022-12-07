@@ -37,8 +37,8 @@ public class Trc20TransferHandler extends BaseTransferHandler {
     private final Long defaultFeeLimit;
 
     public Trc20TransferHandler() {
-        // 设置默认矿工费限制为 10 TRX
-        this.defaultFeeLimit = Convert.toSun(BigDecimal.TEN, Convert.Unit.TRX).longValue();
+        // 设置默认矿工费限制为 15 TRX
+        this.defaultFeeLimit = Convert.toSun(BigDecimal.valueOf(15), Convert.Unit.TRX).longValue();
     }
 
     public Trc20TransferHandler(Long defaultFeeLimit) {
