@@ -3,7 +3,6 @@ package org.tron.easywork;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import lombok.extern.slf4j.Slf4j;
-import org.bouncycastle.jcajce.provider.digest.Keccak;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.Test;
 import org.tron.easywork.exception.FunctionSelectorException;
@@ -13,6 +12,7 @@ import org.tron.easywork.model.TransferFunctionParam;
 import org.tron.easywork.util.AccountUtils;
 import org.tron.easywork.util.SmartContractParser;
 import org.tron.easywork.util.TronConverter;
+import org.tron.trident.core.ApiWrapper;
 import org.tron.trident.core.contract.Contract;
 import org.tron.trident.core.contract.Trc20Contract;
 import org.tron.trident.core.exceptions.IllegalException;
@@ -174,7 +174,7 @@ public class SomeTest extends BaseTest {
      * 字符串签名验证
      */
     @Test
-    public void verifyTransaction() {
+    public void verify_text() {
         String str = "hello world";
 
         String hexString = Hex.toHexString(str.getBytes());
@@ -182,23 +182,56 @@ public class SomeTest extends BaseTest {
         log.debug(hexString);
 
         // 交易id（即交易哈希，通过Transaction.rawData计算SHA256得到）
-        byte[] txId = Hash.sha256(Hex.decode(hexString));
+        byte[] tid = Hash.sha256(Hex.decode(hexString));
 
-        // 交易id_hex
-        log.debug("txId_hex:{}", Hex.toHexString(txId));
+        // 交易ID Hex
+        log.debug("tid-hex:{}", Hex.toHexString(tid));
 
-        byte[] digest = new Keccak.Digest256().digest(Hex.decode(hexString));
-        log.debug("digest:{}", Hex.toHexString(digest));
+        /*byte[] digest = new Keccak.Digest256().digest(Hex.decode(hexString));
+        log.debug("digest:{}", Hex.toHexString(digest));*/
 
-        // 对 txid 进行签名
-        byte[] sign = KeyPair.signTransaction(digest, fromAccount.getKeyPair());
-        log.debug("签名：{}", Hex.toHexString(sign));
+        // 对 tid 进行签名
+        byte[] sign = KeyPair.signTransaction(tid, fromAccount.getKeyPair());
+        log.debug("sign-hex：{}", Hex.toHexString(sign));
+
         // 所有者
         byte[] owner = Base58Check.base58ToBytes(fromAccount.getBase58CheckAddress());
-        // 签名
-        boolean verify = SignatureValidator.verify(digest, sign, owner);
-        log.debug("签名结果：{}", verify);
 
+        // 签名
+        boolean verify = SignatureValidator.verify(tid, sign, owner);
+        log.info("签名结果：{}", verify);
+    }
+
+    /**
+     * 验证交易签名
+     */
+    @Test
+    public void verifyTransaction() throws IllegalException {
+        // trx 个数
+        BigDecimal realAmount = BigDecimal.valueOf(1);
+        // sun 个数
+        BigDecimal sun = Convert.toSun(realAmount, Convert.Unit.TRX);
+
+        // 远程构造交易
+        Response.TransactionExtention transfer =
+                wrapper.transfer(fromAccount.getBase58CheckAddress(), toAddress, sun.longValue());
+
+        // 签名
+        Chain.Transaction signTransaction = wrapper.signTransaction(transfer);
+
+        boolean verify = SignatureValidator.verify(
+                ApiWrapper.calculateTransactionHash(transfer.getTransaction()),
+                signTransaction.getSignature(0).toByteArray(),
+                ApiWrapper.parseAddress(wrapper.keyPair.toBase58CheckAddress()).toByteArray()
+        );
+
+        if (verify) {
+            // 广播
+            String tid = wrapper.broadcastTransaction(signTransaction);
+            log.debug(tid);
+            return;
+        }
+        log.error("签名错误！");
     }
 
     /**
