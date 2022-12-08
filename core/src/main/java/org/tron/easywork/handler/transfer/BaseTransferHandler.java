@@ -34,7 +34,7 @@ public abstract class BaseTransferHandler implements LocalTransfer, TransferPars
 
         // 添加合约信息
         rawBuilder.addContract(this.contractBuilder(transferInfo));
-        // 设置 trc20 手续费限制
+        // 设置智能合约手续费限制
         this.setFeeLimit(rawBuilder, transferInfo);
 
         // 构造交易信息

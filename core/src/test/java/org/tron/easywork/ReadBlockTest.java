@@ -65,7 +65,7 @@ public class ReadBlockTest extends BaseTest {
                     // parameter - 数据|入参
                     Any parameter = contract.getParameter();
                     // 根据合约类型使用不同的工具进行解码
-                    // 如果是trc20合约
+                    // 如果是 触发智能合约 操作
                     if (contractType == Chain.Transaction.Contract.ContractType.TriggerSmartContract) {
                         try {
                             // 解码
