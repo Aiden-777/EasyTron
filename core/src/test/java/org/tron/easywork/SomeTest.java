@@ -10,7 +10,7 @@ import org.tron.easywork.exception.SmartParamDecodeException;
 import org.tron.easywork.model.AccountInfo;
 import org.tron.easywork.model.TransferFunctionParam;
 import org.tron.easywork.util.AccountUtils;
-import org.tron.easywork.util.SmartContractParser;
+import org.tron.easywork.util.Trc20ContractUtil;
 import org.tron.easywork.util.TronConverter;
 import org.tron.trident.core.ApiWrapper;
 import org.tron.trident.core.contract.Contract;
@@ -240,7 +240,7 @@ public class SomeTest extends BaseTest {
     @Test
     public void parseData() throws SmartParamDecodeException, FunctionSelectorException {
         String data = "a9059cbb0000000000000000000000001391667f4940d9f58d2779d92357e714f5bf3ea900000000000000000000000000000000000000000000000000000000005ffab4";
-        TransferFunctionParam transferFunctionParam = SmartContractParser.getTransferFunctionParam(data);
+        TransferFunctionParam transferFunctionParam = Trc20ContractUtil.getTransferFunctionParam(data);
         log.debug(transferFunctionParam.toString());
     }
 

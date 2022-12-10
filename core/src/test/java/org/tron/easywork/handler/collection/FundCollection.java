@@ -7,7 +7,7 @@ import org.tron.easywork.handler.transfer.TrxTransferHandler;
 import org.tron.easywork.model.AccountInfo;
 import org.tron.easywork.model.TransferInfo;
 import org.tron.easywork.model.Trc20TransferInfo;
-import org.tron.easywork.util.Trc20Utils;
+import org.tron.easywork.util.Trc20ContractUtil;
 import org.tron.trident.core.ApiWrapper;
 import org.tron.trident.core.exceptions.IllegalException;
 import org.tron.trident.core.key.KeyPair;
@@ -89,7 +89,7 @@ public class FundCollection {
         log.debug("开始处理账户：{}", account.getBase58CheckAddress());
 
         // 查询Trc20余额
-        BigDecimal balance = Trc20Utils.trc20BalanceOf(fundCollectionConfig.getTrc20ContractInfo().getAddress(), account.getBase58CheckAddress(), wrapper);
+        BigDecimal balance = Trc20ContractUtil.trc20BalanceOf(fundCollectionConfig.getTrc20ContractInfo().getAddress(), account.getBase58CheckAddress(), wrapper);
         log.debug("Trc20余额：{}", fundCollectionConfig.getTrc20ContractInfo().getRealAmount(balance).stripTrailingZeros().toPlainString());
 
         if (balance.compareTo(BigDecimal.ZERO) == 0) {

@@ -12,7 +12,7 @@ import org.tron.easywork.exception.FunctionSelectorException;
 import org.tron.easywork.exception.SmartParamDecodeException;
 import org.tron.easywork.model.TransferInfo;
 import org.tron.easywork.util.BlockParser;
-import org.tron.easywork.util.TransactionParser;
+import org.tron.easywork.util.TransactionUtil;
 import org.tron.trident.crypto.Hash;
 import org.tron.trident.proto.Chain;
 
@@ -175,7 +175,7 @@ public abstract class BaseTransferHandler implements LocalTransfer, TransferPars
         TransferInfo transferInfo = this.getTransferInfo(unpack);
 
         // 交易ID
-        String tid = TransactionParser.getTransactionId(transaction);
+        String tid = TransactionUtil.getTransactionId(transaction);
 
         // 备注
         ByteString memoData = transaction.getRawData().getData();

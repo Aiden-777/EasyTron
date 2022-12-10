@@ -6,7 +6,7 @@ import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.tron.easywork.model.TransferInfo;
 import org.tron.easywork.model.Trc10TransferInfo;
-import org.tron.easywork.util.TransactionParser;
+import org.tron.easywork.util.TransactionUtil;
 import org.tron.trident.core.ApiWrapper;
 import org.tron.trident.core.exceptions.IllegalException;
 import org.tron.trident.core.key.KeyPair;
@@ -39,7 +39,7 @@ public class TransferAssetContractHandler extends ContractHandlerAbstract {
     @Override
     public Trc10TransferInfo getTransferInfo(GeneratedMessageV3 contract) {
         if (contract instanceof Contract.TransferAssetContract transferAssetContract) {
-            return TransactionParser.getTransferInfo(transferAssetContract);
+            return TransactionUtil.getTransferInfo(transferAssetContract);
         }
         throw new ClassCastException("不支持的类：" + contract.getClass().getName() + "。请提供 TransferAssetContract 类型对象!");
     }

@@ -7,7 +7,7 @@
     <groupId>org.tron.easywork</groupId>
     <artifactId>parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.2.2</version>
+    <version>1.3</version>
     <modules>
         <module>common</module>
         <module>core</module>
@@ -17,7 +17,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <easywork.common.version>1.2.1</easywork.common.version>
+        <easywork.common.version>1.3</easywork.common.version>
     </properties>
 
     <dependencyManagement>

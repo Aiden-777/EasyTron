@@ -9,7 +9,7 @@ import org.tron.easywork.handler.transfer.TrxTransferHandler;
 import org.tron.easywork.model.TransferInfo;
 import org.tron.easywork.model.Trc20ContractInfo;
 import org.tron.easywork.model.Trc20TransferInfo;
-import org.tron.easywork.util.Trc20Utils;
+import org.tron.easywork.util.Trc20ContractUtil;
 import org.tron.trident.core.contract.Trc20Contract;
 import org.tron.trident.core.exceptions.IllegalException;
 import org.tron.trident.proto.Chain;
@@ -61,7 +61,7 @@ public class TransferTest extends BaseTest {
         BigDecimal amount = BigDecimal.valueOf(0.1);
         for (int i = 0; i < 1; i++) {
             // trc20 合约信息
-            Trc20ContractInfo trc20ContractInfo = Trc20Utils.readTrc20ContractInfo(testContractAddress, wrapper);
+            Trc20ContractInfo trc20ContractInfo = Trc20ContractUtil.readTrc20ContractInfo(testContractAddress, wrapper);
             // 获取系统转账金额
             BigDecimal transferAmount = trc20ContractInfo.getTransferAmount(amount);
             // 转账交易信息
@@ -158,7 +158,7 @@ public class TransferTest extends BaseTest {
         // 金额
         BigDecimal amount = BigDecimal.valueOf(1);
         // trc20 合约信息
-        Trc20ContractInfo trc20ContractInfo = Trc20Utils.readTrc20ContractInfo(testContractAddress, wrapper);
+        Trc20ContractInfo trc20ContractInfo = Trc20ContractUtil.readTrc20ContractInfo(testContractAddress, wrapper);
         // 获取系统转账金额
         BigDecimal transferAmount = trc20ContractInfo.getTransferAmount(amount);
         // 转账交易信息

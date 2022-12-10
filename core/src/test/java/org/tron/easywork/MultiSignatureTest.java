@@ -9,7 +9,7 @@ import org.tron.easywork.model.AccountInfo;
 import org.tron.easywork.model.TransferInfo;
 import org.tron.easywork.model.Trc20ContractInfo;
 import org.tron.easywork.model.Trc20TransferInfo;
-import org.tron.easywork.util.Trc20Utils;
+import org.tron.easywork.util.Trc20ContractUtil;
 import org.tron.trident.core.ApiWrapper;
 import org.tron.trident.core.exceptions.IllegalException;
 import org.tron.trident.proto.Chain;
@@ -60,7 +60,7 @@ public class MultiSignatureTest extends BaseTest {
         // 实际转账金额
         BigDecimal realAmount = BigDecimal.valueOf(1);
         // 合约
-        Trc20ContractInfo trc20ContractInfo = Trc20Utils.readTrc20ContractInfo(testContractAddress, wrapper);
+        Trc20ContractInfo trc20ContractInfo = Trc20ContractUtil.readTrc20ContractInfo(testContractAddress, wrapper);
         // 系统转账金额
         BigDecimal transferAmount = trc20ContractInfo.getTransferAmount(realAmount);
         // trc20交易
