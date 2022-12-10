@@ -23,11 +23,13 @@
         <groupId>io.grpc</groupId>
         <artifactId>grpc-all</artifactId>
         <version>1.51.0</version>
+        <scope>provided</scope>
     </dependency>
     <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcprov-jdk18on</artifactId>
         <version>1.72</version>
+        <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -49,12 +51,12 @@
     <dependency>
         <groupId>org.tron.easywork</groupId>
         <artifactId>core</artifactId>
-        <version>1.2.2</version>
+        <version>1.3</version>
     </dependency>
     <dependency>
         <groupId>org.tron.easywork</groupId>
         <artifactId>common</artifactId>
-        <version>1.2.2</version>
+        <version>1.3</version>
     </dependency>
 
 </dependencies>
