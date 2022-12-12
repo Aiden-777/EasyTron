@@ -49,6 +49,16 @@ public class TransactionUtil {
         return transaction.getRet(0).getContractRet().getNumber() == 1;
     }
 
+    /**
+     * 获取交易合约类型
+     *
+     * @param transaction 交易
+     * @return 合约类型
+     */
+    public static Chain.Transaction.Contract.ContractType getFirstContractType(Chain.Transaction transaction) {
+        return transaction.getRawData().getContract(0).getType();
+    }
+
 
     /**
      * 获取转账信息
