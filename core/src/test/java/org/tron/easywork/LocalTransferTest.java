@@ -7,13 +7,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.Test;
 import org.tron.easywork.demo.DemoLocalTransferHandler;
+import org.tron.easywork.handler.transfer.BaseTransferHandler;
 import org.tron.easywork.handler.transfer.LocalTransferContext;
 import org.tron.easywork.handler.transfer.Trc20TransferHandler;
 import org.tron.easywork.handler.transfer.TrxTransferHandler;
-import org.tron.easywork.model.TransferInfo;
-import org.tron.easywork.model.Trc10TransferInfo;
-import org.tron.easywork.model.Trc20ContractInfo;
-import org.tron.easywork.model.Trc20TransferInfo;
+import org.tron.easywork.model.*;
 import org.tron.easywork.util.BlockUtil;
 import org.tron.easywork.util.Trc20ContractUtil;
 import org.tron.trident.abi.FunctionEncoder;
@@ -52,7 +50,7 @@ public class LocalTransferTest extends BaseTest {
      * 1273a14d335dbfb47a003b3ac92192488fe135f5a7babe14ff3454b47262aadf
      */
     @Test
-    public void localTransferContext() throws IllegalException {
+    public void localTransferContext() {
         // 转出地址
         String fromAddress = fromAccount.getBase58CheckAddress();
         // 实际转账金额
@@ -67,8 +65,6 @@ public class LocalTransferTest extends BaseTest {
         trc20TransferInfo.setMemo("大聪明...");
         // 矿工费限制 - 可以为空，处理器默认设置为10trx
         trc20TransferInfo.setFeeLimit(defaultFeeLimit);
-        // 获取参考区块
-        Chain.Block refBlock = wrapper.getNowBlock();
         // 处理器上下文
         LocalTransferContext localTransferContext = new LocalTransferContext();
         // 添加trc20处理器
@@ -76,8 +72,16 @@ public class LocalTransferTest extends BaseTest {
         // 添加trx处理器
         localTransferContext.addHandler("trxTransferHandler", new TrxTransferHandler());
         try {
+            BaseTransferHandler handler = localTransferContext.getHandler(trc20TransferInfo.getTransferType());
+            if (null == handler) {
+                log.warn("系统中不存在转账处理器实例");
+                return;
+            }
+            // 获取参考区块
+            Chain.Block nowBlock = wrapper.getNowBlock();
+            ReferenceBlock referenceBlock = new ReferenceBlock(nowBlock.getBlockHeader());
             // 构造本地交易
-            Chain.Transaction transaction = localTransferContext.buildLocalTransfer(trc20TransferInfo, refBlock.getBlockHeader());
+            Chain.Transaction transaction = handler.buildLocalTransfer(trc20TransferInfo, referenceBlock);
             // 签名
             Chain.Transaction signTransaction = wrapper.signTransaction(transaction);
             // 广播并返回ID
