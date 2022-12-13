@@ -5,13 +5,11 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.netty.util.internal.StringUtil;
-import org.bouncycastle.util.encoders.Hex;
 import org.tron.easywork.enums.TransactionStatus;
 import org.tron.easywork.enums.TransferType;
 import org.tron.easywork.exception.FunctionSelectorException;
 import org.tron.easywork.exception.SmartParamDecodeException;
 import org.tron.easywork.model.TransferInfo;
-import org.tron.easywork.util.BlockUtil;
 import org.tron.easywork.util.TransactionUtil;
 import org.tron.trident.crypto.Hash;
 import org.tron.trident.proto.Chain;
@@ -48,6 +46,11 @@ public abstract class BaseTransferHandler implements LocalTransfer, TransferPars
 
     /**
      * 创建交易原数据构造器，并进行基础配置
+     * <p>
+     * 本地构建交易
+     * bytes ref_block_bytes = 1;   //最新块高度的第6到8（不包含）之间的字节
+     * int64 ref_block_num = 3;     //区块高度，可选
+     * bytes ref_block_hash = 4;    //最新块的hash的第8到16(不包含)之间的字节
      *
      * @param transferInfo   交易信息
      * @param refBlockHeader 引用区块
@@ -55,11 +58,12 @@ public abstract class BaseTransferHandler implements LocalTransfer, TransferPars
      */
     private Chain.Transaction.raw.Builder transactionRawBuilder(TransferInfo transferInfo, Chain.BlockHeader refBlockHeader) {
 
-        long blockHeight = refBlockHeader.getRawData().getNumber();
-        String blockId = BlockUtil.parseBlockId(refBlockHeader);
-
-        byte[] refBlockNum = ByteBuffer.allocate(8).putLong(blockHeight).array();
         byte[] blockHash = Hash.sha256(refBlockHeader.getRawData().toByteArray());
+
+        byte[] refBlockNum = ByteBuffer
+                .allocate(Long.BYTES)
+                .putLong(refBlockHeader.getRawData().getNumber())
+                .array();
 
         Date now = new Date();
         Calendar calendar = Calendar.getInstance();
@@ -75,9 +79,9 @@ public abstract class BaseTransferHandler implements LocalTransfer, TransferPars
                 // 过期时间
                 .setExpiration(calendar.getTimeInMillis())
                 // 参考区块
-                .setRefBlockHash(ByteString.copyFrom(subArray(blockHash, 8, 16)))
+                .setRefBlockHash(ByteString.copyFrom(blockHash, 8, 8))
                 // 参考区块
-                .setRefBlockBytes(ByteString.copyFrom(subArray(Hex.decode(blockId), 6, 8)))
+                .setRefBlockBytes(ByteString.copyFrom(refBlockNum, 6, 2))
                 // 备注
                 .setData(memo);
     }
@@ -142,20 +146,6 @@ public abstract class BaseTransferHandler implements LocalTransfer, TransferPars
      * @return 子类交易信息
      */
     abstract protected TransferInfo checkAndTranslate(TransferInfo transferInfo);
-
-    /**
-     * 截取字符数组
-     *
-     * @param input 输入
-     * @param start 开始位置
-     * @param end   结束位置
-     * @return 截取后的字符数组
-     */
-    private static byte[] subArray(byte[] input, int start, int end) {
-        byte[] result = new byte[end - start];
-        System.arraycopy(input, start, result, 0, end - start);
-        return result;
-    }
 
     @Override
     public TransferInfo parse(Chain.Transaction transaction) throws InvalidProtocolBufferException, SmartParamDecodeException, FunctionSelectorException {
