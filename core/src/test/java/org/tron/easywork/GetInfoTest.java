@@ -13,7 +13,7 @@ import org.tron.easywork.model.TransferInfo;
 import org.tron.easywork.model.Trc10TransferInfo;
 import org.tron.easywork.model.Trc20ContractInfo;
 import org.tron.easywork.model.Trc20TransferInfo;
-import org.tron.easywork.util.Trc20Utils;
+import org.tron.easywork.util.Trc20ContractUtil;
 import org.tron.easywork.util.TronConverter;
 import org.tron.trident.core.contract.Contract;
 import org.tron.trident.core.contract.Trc20Contract;
@@ -132,11 +132,11 @@ public class GetInfoTest extends BaseTest {
     public void balanceOfTrc20() {
         // 地址
         String address = "TP6QorvxAJ4bXg21LterCpGi5oZ2PxybCZ";
-        BigDecimal transferAmount = Trc20Utils.trc20BalanceOf(testContractAddress, address, wrapper);
+        BigDecimal transferAmount = Trc20ContractUtil.trc20BalanceOf(testContractAddress, address, wrapper);
         log.debug("Trc20余额:{}", transferAmount);
 
         // 合约信息
-        Trc20ContractInfo trc20ContractInfo = Trc20Utils.readTrc20ContractInfo(testContractAddress, wrapper);
+        Trc20ContractInfo trc20ContractInfo = Trc20ContractUtil.readTrc20ContractInfo(testContractAddress, wrapper);
         BigDecimal realAmount = trc20ContractInfo.getRealAmount(transferAmount).stripTrailingZeros();
         log.debug("Trc20真实余额：{}个", realAmount);
     }

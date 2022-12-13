@@ -21,7 +21,7 @@ import java.math.BigInteger;
  * @version 1.0
  * @time 2022-04-01 16:52
  */
-public class TransactionParser {
+public class TransactionUtil {
 
     /**
      * 解析交易ID（交易hash）
@@ -38,6 +38,27 @@ public class TransactionParser {
         byte[] bytes = ApiWrapper.calculateTransactionHash(transaction);
         return Hex.toHexString(bytes);
     }
+
+    /**
+     * 检查交易是否成功
+     *
+     * @param transaction 交易
+     * @return 是否成功
+     */
+    public static boolean isTransactionSuccess(Chain.Transaction transaction) {
+        return transaction.getRet(0).getContractRet().getNumber() == 1;
+    }
+
+    /**
+     * 获取交易合约类型
+     *
+     * @param transaction 交易
+     * @return 合约类型
+     */
+    public static Chain.Transaction.Contract.ContractType getFirstContractType(Chain.Transaction transaction) {
+        return transaction.getRawData().getContract(0).getType();
+    }
+
 
     /**
      * 获取转账信息
@@ -87,7 +108,7 @@ public class TransactionParser {
      */
     public static Trc20TransferInfo getTransferInfo(Contract.TriggerSmartContract triggerSmartContract) throws SmartParamDecodeException, FunctionSelectorException {
         // 转账数据：到账地址、交易金额
-        TransferFunctionParam transferFunctionParam = SmartContractParser.getTransferFunctionParam(triggerSmartContract);
+        TransferFunctionParam transferFunctionParam = Trc20ContractUtil.getTransferFunctionParam(triggerSmartContract);
         // 发送人
         byte[] fromAddressBs = triggerSmartContract.getOwnerAddress().toByteArray();
         String fromAddress = Base58Check.bytesToBase58(fromAddressBs);

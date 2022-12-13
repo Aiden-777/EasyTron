@@ -8,7 +8,7 @@ import org.tron.easywork.exception.FunctionSelectorException;
 import org.tron.easywork.exception.SmartParamDecodeException;
 import org.tron.easywork.model.TransferInfo;
 import org.tron.easywork.model.Trc20TransferInfo;
-import org.tron.easywork.util.TransactionParser;
+import org.tron.easywork.util.TransactionUtil;
 import org.tron.trident.abi.FunctionEncoder;
 import org.tron.trident.abi.TypeReference;
 import org.tron.trident.abi.datatypes.Address;
@@ -105,7 +105,7 @@ public class Trc20TransferHandler extends BaseTransferHandler {
     @Override
     public Trc20TransferInfo getTransferInfo(GeneratedMessageV3 contract) throws SmartParamDecodeException, FunctionSelectorException {
         if (contract instanceof Contract.TriggerSmartContract triggerSmartContract) {
-            return TransactionParser.getTransferInfo(triggerSmartContract);
+            return TransactionUtil.getTransferInfo(triggerSmartContract);
         }
         throw new ClassCastException("不支持的类：" + contract.getClass().getName() + "。请提供 TriggerSmartContract 类型对象!");
     }

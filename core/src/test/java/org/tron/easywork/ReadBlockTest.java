@@ -10,8 +10,8 @@ import org.tron.easywork.factory.ApiWrapperFactory;
 import org.tron.easywork.handler.transfer.*;
 import org.tron.easywork.model.TransferInfo;
 import org.tron.easywork.model.Trc20TransferInfo;
-import org.tron.easywork.util.BlockParser;
-import org.tron.easywork.util.TransactionParser;
+import org.tron.easywork.util.BlockUtil;
+import org.tron.easywork.util.TransactionUtil;
 import org.tron.trident.core.exceptions.IllegalException;
 import org.tron.trident.proto.Chain;
 
@@ -38,7 +38,7 @@ public class ReadBlockTest extends BaseTest {
         // 获取最新区块
         Chain.Block nowBlock = wrapper.getNowBlock();
         // 区块ID
-        String blockId = BlockParser.parseBlockId(nowBlock);
+        String blockId = BlockUtil.parseBlockId(nowBlock);
         log.info("区块ID：{}", blockId);
         if (nowBlock.getTransactionsCount() <= 0) {
             log.debug("交易数量为0");
@@ -50,7 +50,7 @@ public class ReadBlockTest extends BaseTest {
         transactionsList.forEach(
                 transaction -> {
                     // 交易ID
-                    String transactionId = TransactionParser.getTransactionId(transaction);
+                    String transactionId = TransactionUtil.getTransactionId(transaction);
                     log.info("交易ID：{}", transactionId);
                     // 交易状态
                     boolean status = transaction.getRet(0).getContractRet().getNumber() == 1;
@@ -72,7 +72,7 @@ public class ReadBlockTest extends BaseTest {
                             org.tron.trident.proto.Contract.TriggerSmartContract triggerSmartContract =
                                     parameter.unpack(org.tron.trident.proto.Contract.TriggerSmartContract.class);
                             // 获取交易详情
-                            Trc20TransferInfo transferInfo = TransactionParser.getTransferInfo(triggerSmartContract);
+                            Trc20TransferInfo transferInfo = TransactionUtil.getTransferInfo(triggerSmartContract);
                             // ......
                         } catch (InvalidProtocolBufferException e) {
                             log.debug("unpack解包异常");
