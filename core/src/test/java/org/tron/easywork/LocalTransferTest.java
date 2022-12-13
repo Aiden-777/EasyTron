@@ -4,15 +4,10 @@ import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.GeneratedMessageV3;
 import lombok.extern.slf4j.Slf4j;
-import org.bouncycastle.util.encoders.Hex;
 import org.junit.Test;
 import org.tron.easywork.demo.DemoLocalTransferHandler;
-import org.tron.easywork.handler.transfer.BaseTransferHandler;
-import org.tron.easywork.handler.transfer.LocalTransferContext;
-import org.tron.easywork.handler.transfer.Trc20TransferHandler;
-import org.tron.easywork.handler.transfer.TrxTransferHandler;
+import org.tron.easywork.handler.transfer.*;
 import org.tron.easywork.model.*;
-import org.tron.easywork.util.BlockUtil;
 import org.tron.easywork.util.Trc20ContractUtil;
 import org.tron.trident.abi.FunctionEncoder;
 import org.tron.trident.abi.TypeReference;
@@ -113,6 +108,9 @@ public class LocalTransferTest extends BaseTest {
 
     /**
      * # 333 -完整的本地交易构造（参考）
+     * {@link LocalTransfer#buildLocalTransfer(TransferInfo, ReferenceBlock) }
+     * {@link BaseTransferHandler#buildLocalTransfer(TransferInfo, ReferenceBlock)}
+     * <p>
      * 原本流程一个交易是将信息通过 gRPC接口 在远程构建，现在使用代码在本地构建交易。
      * 好处是减少网络IO次数，更加灵活的配置交易变量
      * 需要注意的点，本地构造交易需要一个引用区块，这个区块距离最新区块高度不能超过65535，比如可以在系统中配置一个引用区块全局变量，每两个小时刷新一次，以达到复用效果。
@@ -124,10 +122,8 @@ public class LocalTransferTest extends BaseTest {
         Chain.Block nowBlock = wrapper.getNowBlock();
         // 区块高度
         long blockHeight = nowBlock.getBlockHeader().getRawData().getNumber();
-        // 区块ID
-        String blockId = BlockUtil.parseBlockId(nowBlock);
 
-        byte[] refBlockNum = ByteBuffer.allocate(8).putLong(blockHeight).array();
+        byte[] blockNum = ByteBuffer.allocate(Long.BYTES).putLong(blockHeight).array();
         byte[] blockHash = Hash.sha256(nowBlock.getBlockHeader().getRawData().toByteArray());
 
         // 当前时间
@@ -195,7 +191,7 @@ public class LocalTransferTest extends BaseTest {
                         // 参考区块信息
                         .setRefBlockHash(ByteString.copyFrom(subArray(blockHash, 8, 16)))
                         // 参考区块信息
-                        .setRefBlockBytes(ByteString.copyFrom(subArray(Hex.decode(blockId), 6, 8)))
+                        .setRefBlockBytes(ByteString.copyFrom(subArray(blockNum, 6, 8)))
                         // 添加合约信息
                         .addContract(
                                 Chain.Transaction.Contract.newBuilder()
