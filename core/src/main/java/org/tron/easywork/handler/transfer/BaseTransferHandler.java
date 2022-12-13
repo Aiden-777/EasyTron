@@ -11,7 +11,7 @@ import org.tron.easywork.enums.TransferType;
 import org.tron.easywork.exception.FunctionSelectorException;
 import org.tron.easywork.exception.SmartParamDecodeException;
 import org.tron.easywork.model.TransferInfo;
-import org.tron.easywork.util.BlockParser;
+import org.tron.easywork.util.BlockUtil;
 import org.tron.easywork.util.TransactionUtil;
 import org.tron.trident.crypto.Hash;
 import org.tron.trident.proto.Chain;
@@ -56,7 +56,7 @@ public abstract class BaseTransferHandler implements LocalTransfer, TransferPars
     private Chain.Transaction.raw.Builder transactionRawBuilder(TransferInfo transferInfo, Chain.BlockHeader refBlockHeader) {
 
         long blockHeight = refBlockHeader.getRawData().getNumber();
-        String blockId = BlockParser.parseBlockId(refBlockHeader);
+        String blockId = BlockUtil.parseBlockId(refBlockHeader);
 
         byte[] refBlockNum = ByteBuffer.allocate(8).putLong(blockHeight).array();
         byte[] blockHash = Hash.sha256(refBlockHeader.getRawData().toByteArray());

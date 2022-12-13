@@ -11,7 +11,7 @@ import org.tron.trident.proto.Chain;
  * @version 1.0
  * @time 2022-04-21 03:40
  */
-public class BlockParser {
+public class BlockUtil {
 
     /**
      * 解析区块ID（区块hash）

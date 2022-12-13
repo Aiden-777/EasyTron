@@ -10,7 +10,7 @@ import org.tron.easywork.factory.ApiWrapperFactory;
 import org.tron.easywork.handler.transfer.*;
 import org.tron.easywork.model.TransferInfo;
 import org.tron.easywork.model.Trc20TransferInfo;
-import org.tron.easywork.util.BlockParser;
+import org.tron.easywork.util.BlockUtil;
 import org.tron.easywork.util.TransactionUtil;
 import org.tron.trident.core.exceptions.IllegalException;
 import org.tron.trident.proto.Chain;
@@ -38,7 +38,7 @@ public class ReadBlockTest extends BaseTest {
         // 获取最新区块
         Chain.Block nowBlock = wrapper.getNowBlock();
         // 区块ID
-        String blockId = BlockParser.parseBlockId(nowBlock);
+        String blockId = BlockUtil.parseBlockId(nowBlock);
         log.info("区块ID：{}", blockId);
         if (nowBlock.getTransactionsCount() <= 0) {
             log.debug("交易数量为0");

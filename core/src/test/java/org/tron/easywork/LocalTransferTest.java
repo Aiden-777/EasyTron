@@ -14,7 +14,7 @@ import org.tron.easywork.model.TransferInfo;
 import org.tron.easywork.model.Trc10TransferInfo;
 import org.tron.easywork.model.Trc20ContractInfo;
 import org.tron.easywork.model.Trc20TransferInfo;
-import org.tron.easywork.util.BlockParser;
+import org.tron.easywork.util.BlockUtil;
 import org.tron.easywork.util.Trc20ContractUtil;
 import org.tron.trident.abi.FunctionEncoder;
 import org.tron.trident.abi.TypeReference;
@@ -121,7 +121,7 @@ public class LocalTransferTest extends BaseTest {
         // 区块高度
         long blockHeight = nowBlock.getBlockHeader().getRawData().getNumber();
         // 区块ID
-        String blockId = BlockParser.parseBlockId(nowBlock);
+        String blockId = BlockUtil.parseBlockId(nowBlock);
 
         byte[] refBlockNum = ByteBuffer.allocate(8).putLong(blockHeight).array();
         byte[] blockHash = Hash.sha256(nowBlock.getBlockHeader().getRawData().toByteArray());

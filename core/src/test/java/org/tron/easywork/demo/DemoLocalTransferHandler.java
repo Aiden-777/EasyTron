@@ -9,7 +9,7 @@ import org.bouncycastle.util.encoders.Hex;
 import org.tron.easywork.model.TransferInfo;
 import org.tron.easywork.model.Trc10TransferInfo;
 import org.tron.easywork.model.Trc20TransferInfo;
-import org.tron.easywork.util.BlockParser;
+import org.tron.easywork.util.BlockUtil;
 import org.tron.trident.abi.FunctionEncoder;
 import org.tron.trident.abi.TypeReference;
 import org.tron.trident.abi.datatypes.Address;
@@ -39,7 +39,7 @@ public class DemoLocalTransferHandler {
 
     public Chain.Transaction buildLocalTransfer(TransferInfo transferInfo, Chain.BlockHeader refBlockHeader) {
         long blockHeight = refBlockHeader.getRawData().getNumber();
-        String blockId = BlockParser.parseBlockId(refBlockHeader);
+        String blockId = BlockUtil.parseBlockId(refBlockHeader);
 
         byte[] refBlockNum = ByteBuffer.allocate(8).putLong(blockHeight).array();
         byte[] blockHash = Hash.sha256(refBlockHeader.getRawData().toByteArray());
