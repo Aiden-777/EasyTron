@@ -9,12 +9,11 @@ import org.tron.easywork.enums.TransactionStatus;
 import org.tron.easywork.enums.TransferType;
 import org.tron.easywork.exception.FunctionSelectorException;
 import org.tron.easywork.exception.SmartParamDecodeException;
+import org.tron.easywork.model.ReferenceBlock;
 import org.tron.easywork.model.TransferInfo;
 import org.tron.easywork.util.TransactionUtil;
-import org.tron.trident.crypto.Hash;
 import org.tron.trident.proto.Chain;
 
-import java.nio.ByteBuffer;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -26,9 +25,15 @@ import java.util.Date;
 public abstract class BaseTransferHandler implements LocalTransfer, TransferParser {
 
     @Override
-    public Chain.Transaction buildLocalTransfer(TransferInfo transferInfo, Chain.BlockHeader refBlockHeader) {
+    public Chain.Transaction buildLocalTransfer(TransferInfo transferInfo, Chain.BlockHeader blockHeader) {
+        ReferenceBlock referenceBlock = new ReferenceBlock(blockHeader);
+        return this.buildLocalTransfer(transferInfo, referenceBlock);
+    }
+
+    @Override
+    public Chain.Transaction buildLocalTransfer(TransferInfo transferInfo, ReferenceBlock referenceBlock) {
         // 交易原数据
-        Chain.Transaction.raw.Builder rawBuilder = this.transactionRawBuilder(transferInfo, refBlockHeader);
+        Chain.Transaction.raw.Builder rawBuilder = this.transactionRawBuilder(transferInfo, referenceBlock);
 
         // 添加合约信息
         rawBuilder.addContract(this.contractBuilder(transferInfo));
@@ -44,6 +49,7 @@ public abstract class BaseTransferHandler implements LocalTransfer, TransferPars
         return transactionBuilder.build();
     }
 
+
     /**
      * 创建交易原数据构造器，并进行基础配置
      * <p>
@@ -53,18 +59,10 @@ public abstract class BaseTransferHandler implements LocalTransfer, TransferPars
      * bytes ref_block_hash = 4;    //最新块的hash的第8到16(不包含)之间的字节
      *
      * @param transferInfo   交易信息
-     * @param refBlockHeader 引用区块
+     * @param referenceBlock 引用区块
      * @return 交易原数据
      */
-    private Chain.Transaction.raw.Builder transactionRawBuilder(TransferInfo transferInfo, Chain.BlockHeader refBlockHeader) {
-
-        byte[] blockHash = Hash.sha256(refBlockHeader.getRawData().toByteArray());
-
-        byte[] refBlockNum = ByteBuffer
-                .allocate(Long.BYTES)
-                .putLong(refBlockHeader.getRawData().getNumber())
-                .array();
-
+    private Chain.Transaction.raw.Builder transactionRawBuilder(TransferInfo transferInfo, ReferenceBlock referenceBlock) {
         Date now = new Date();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(now);
@@ -78,10 +76,10 @@ public abstract class BaseTransferHandler implements LocalTransfer, TransferPars
                 .setTimestamp(now.getTime())
                 // 过期时间
                 .setExpiration(calendar.getTimeInMillis())
-                // 参考区块
-                .setRefBlockHash(ByteString.copyFrom(blockHash, 8, 8))
-                // 参考区块
-                .setRefBlockBytes(ByteString.copyFrom(refBlockNum, 6, 2))
+                // 参考区块 RefBlockHash
+                .setRefBlockHash(referenceBlock.getRefBlockHash())
+                // 参考区块 RefBlockBytes
+                .setRefBlockBytes(referenceBlock.getRefBlockBytes())
                 // 备注
                 .setData(memo);
     }

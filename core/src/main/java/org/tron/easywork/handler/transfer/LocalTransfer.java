@@ -1,5 +1,6 @@
 package org.tron.easywork.handler.transfer;
 
+import org.tron.easywork.model.ReferenceBlock;
 import org.tron.easywork.model.TransferInfo;
 import org.tron.trident.proto.Chain;
 
@@ -11,11 +12,20 @@ import org.tron.trident.proto.Chain;
 public interface LocalTransfer {
 
     /**
-     * 构建本地交易
+     * 构建本地转账交易
      *
-     * @param transferInfo   交易信息
+     * @param transferInfo   转账信息
      * @param refBlockHeader 引用区块头，范围最新区块 65535 以内
      * @return 交易信息
      */
     Chain.Transaction buildLocalTransfer(TransferInfo transferInfo, Chain.BlockHeader refBlockHeader);
+
+    /**
+     * 构建本地转账交易
+     *
+     * @param transferInfo   转账信息
+     * @param referenceBlock 引用区块，范围最新区块 65535 以内
+     * @return 交易信息
+     */
+    Chain.Transaction buildLocalTransfer(TransferInfo transferInfo, ReferenceBlock referenceBlock);
 }

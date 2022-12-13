@@ -1,6 +1,7 @@
 package org.tron.easywork.handler.transfer;
 
 import org.tron.easywork.enums.TransferType;
+import org.tron.easywork.model.ReferenceBlock;
 import org.tron.easywork.model.TransferInfo;
 import org.tron.trident.proto.Chain;
 
@@ -42,10 +43,16 @@ public class LocalTransferContext implements LocalTransfer {
     }
 
     @Override
-    public Chain.Transaction buildLocalTransfer(TransferInfo transferInfo, Chain.BlockHeader refBlockHeader) {
+    public Chain.Transaction buildLocalTransfer(TransferInfo transferInfo, Chain.BlockHeader blockHeader) {
+        ReferenceBlock referenceBlock = new ReferenceBlock(blockHeader);
+        return this.buildLocalTransfer(transferInfo, referenceBlock);
+    }
+
+    @Override
+    public Chain.Transaction buildLocalTransfer(TransferInfo transferInfo, ReferenceBlock referenceBlock) {
         BaseTransferHandler handler = this.getHandler(transferInfo.getTransferType());
         if (null != handler) {
-            return handler.buildLocalTransfer(transferInfo, refBlockHeader);
+            return handler.buildLocalTransfer(transferInfo, referenceBlock);
         }
         throw new RuntimeException("系统中不存在转账处理类实例，请在 LocalTransferContext 上下文中添加 BaseTransferHandler 子类。");
     }
