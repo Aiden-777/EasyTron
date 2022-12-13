@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.tron.easywork.handler.transfer.Trc20TransferHandler;
 import org.tron.easywork.handler.transfer.TrxTransferHandler;
 import org.tron.easywork.model.AccountInfo;
+import org.tron.easywork.model.ReferenceBlock;
 import org.tron.easywork.model.TransferInfo;
 import org.tron.easywork.model.Trc20TransferInfo;
 import org.tron.easywork.util.Trc20ContractUtil;
@@ -61,10 +62,10 @@ public class FundCollection {
      * 资金归集 - 归集 trc20 trx
      *
      * @param privateKey     小号私钥 - 转出账户
-     * @param refBlockHeader 引用区块 - 用于本地构造交易参数
+     * @param referenceBlock 引用区块 - 用于本地构造交易参数
      * @throws InterruptedException 延迟阻塞异常|Sleep睡眠异常
      */
-    public void collection(@NonNull String privateKey, @NonNull Chain.BlockHeader refBlockHeader) throws InterruptedException {
+    public void collection(@NonNull String privateKey, @NonNull ReferenceBlock referenceBlock) throws InterruptedException {
         if (privateKey.trim().length() != 64) {
             throw new RuntimeException("错误私钥:" + privateKey);
         }
@@ -103,7 +104,7 @@ public class FundCollection {
                         account.getBase58CheckAddress(),
                         Convert.toSun(fundCollectionConfig.getHandingFeeWithTrx(), Convert.Unit.TRX));
                 // 构建交易
-                Chain.Transaction handingFeeTransaction = trxTransferHandler.buildLocalTransfer(handingFeeTransfer, refBlockHeader);
+                Chain.Transaction handingFeeTransaction = trxTransferHandler.buildLocalTransfer(handingFeeTransfer, referenceBlock);
                 // 签名
                 Chain.Transaction signTransaction = null;
                 for (String key : fundCollectionConfig.getHandingFeeProviderKeys()) {
@@ -130,7 +131,7 @@ public class FundCollection {
                             fundCollectionConfig.getTrc20ContractInfo().getAddress()
                     );
             // 构建交易
-            Chain.Transaction transaction = trc20TransferHandler.buildLocalTransfer(trc20TransferInfo, refBlockHeader);
+            Chain.Transaction transaction = trc20TransferHandler.buildLocalTransfer(trc20TransferInfo, referenceBlock);
             // 签名
             Chain.Transaction signTransaction = wrapper.signTransaction(transaction, account.getKeyPair());
             // 广播交易
@@ -180,7 +181,7 @@ public class FundCollection {
             // trx转账信息
             TransferInfo incomeTransferInfo = new TransferInfo(account.getBase58CheckAddress(), fundCollectionConfig.getTargetAddressOfTrx(), BigDecimal.valueOf(trxBalance));
             // 构造trx转账交易
-            Chain.Transaction incomeTransfer = trxTransferHandler.buildLocalTransfer(incomeTransferInfo, refBlockHeader);
+            Chain.Transaction incomeTransfer = trxTransferHandler.buildLocalTransfer(incomeTransferInfo, referenceBlock);
             // 签名
             Chain.Transaction signTransactionIncome = wrapper.signTransaction(incomeTransfer, account.getKeyPair());
             // 广播

@@ -5,10 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.tron.easywork.factory.ApiWrapperFactory;
 import org.tron.easywork.handler.contract.TransferContractHandler;
 import org.tron.easywork.handler.transfer.Trc20TransferHandler;
-import org.tron.easywork.model.AccountInfo;
-import org.tron.easywork.model.TransferInfo;
-import org.tron.easywork.model.Trc20ContractInfo;
-import org.tron.easywork.model.Trc20TransferInfo;
+import org.tron.easywork.model.*;
 import org.tron.easywork.util.Trc20ContractUtil;
 import org.tron.trident.core.ApiWrapper;
 import org.tron.trident.core.exceptions.IllegalException;
@@ -73,11 +70,12 @@ public class MultiSignatureTest extends BaseTest {
         transferInfo.setPermissionId(2);
 
         // 参考区块
-        Chain.Block refBlock = wrapper.getNowBlock();
+        Chain.Block nowBlock = wrapper.getNowBlock();
+        ReferenceBlock referenceBlock = new ReferenceBlock(nowBlock.getBlockHeader());
         // trc20 转账处理器
         Trc20TransferHandler trc20TransferHandler = new Trc20TransferHandler();
         // 构造本地交易
-        Chain.Transaction transaction = trc20TransferHandler.buildLocalTransfer(transferInfo, refBlock.getBlockHeader());
+        Chain.Transaction transaction = trc20TransferHandler.buildLocalTransfer(transferInfo,referenceBlock);
         // 账号1签名
         Chain.Transaction signTransaction = wrapper.signTransaction(transaction, account1.getKeyPair());
         // 账号2签名

@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.tron.easywork.BaseTest;
 import org.tron.easywork.handler.transfer.Trc20TransferHandler;
 import org.tron.easywork.handler.transfer.TrxTransferHandler;
+import org.tron.easywork.model.ReferenceBlock;
 import org.tron.easywork.util.Trc20ContractUtil;
 import org.tron.trident.core.exceptions.IllegalException;
 import org.tron.trident.proto.Chain;
@@ -60,11 +61,12 @@ public class CollectionTest extends BaseTest {
 
         // 引用区块
         Chain.Block nowBlock = wrapper.getNowBlock();
+        ReferenceBlock referenceBlock = new ReferenceBlock(nowBlock.getBlockHeader());
 
         for (String key : keys) {
             try {
                 log.debug("--------------------------------");
-                collection.collection(key, nowBlock.getBlockHeader());
+                collection.collection(key, referenceBlock);
             } catch (InterruptedException e) {
                 log.error("Sleep睡眠异常");
                 e.printStackTrace();

@@ -275,11 +275,12 @@ public class LocalTransferTest extends BaseTest {
         // 设置备注
         transferInfo.setMemo("大聪明");
         // 获取参考区块
-        Chain.Block refBlock = wrapper.getNowBlock();
+        Chain.Block nowBlock = wrapper.getNowBlock();
+        ReferenceBlock referenceBlock = new ReferenceBlock(nowBlock.getBlockHeader());
         // trx 转账处理器
         TrxTransferHandler trxTransferHandler = new TrxTransferHandler();
         // 处理器构造本地交易
-        Chain.Transaction transaction = trxTransferHandler.buildLocalTransfer(transferInfo, refBlock.getBlockHeader());
+        Chain.Transaction transaction = trxTransferHandler.buildLocalTransfer(transferInfo, referenceBlock);
         // 签名
         Chain.Transaction signTransaction = wrapper.signTransaction(transaction);
         // 广播并返回ID

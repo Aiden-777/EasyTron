@@ -15,15 +15,6 @@ public interface LocalTransfer {
      * 构建本地转账交易
      *
      * @param transferInfo   转账信息
-     * @param refBlockHeader 引用区块头，范围最新区块 65535 以内
-     * @return 交易信息
-     */
-    Chain.Transaction buildLocalTransfer(TransferInfo transferInfo, Chain.BlockHeader refBlockHeader);
-
-    /**
-     * 构建本地转账交易
-     *
-     * @param transferInfo   转账信息
      * @param referenceBlock 引用区块，范围最新区块 65535 以内
      * @return 交易信息
      */

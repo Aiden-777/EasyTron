@@ -25,12 +25,6 @@ import java.util.Date;
 public abstract class BaseTransferHandler implements LocalTransfer, TransferParser {
 
     @Override
-    public Chain.Transaction buildLocalTransfer(TransferInfo transferInfo, Chain.BlockHeader blockHeader) {
-        ReferenceBlock referenceBlock = new ReferenceBlock(blockHeader);
-        return this.buildLocalTransfer(transferInfo, referenceBlock);
-    }
-
-    @Override
     public Chain.Transaction buildLocalTransfer(TransferInfo transferInfo, ReferenceBlock referenceBlock) {
         // 交易原数据
         Chain.Transaction.raw.Builder rawBuilder = this.transactionRawBuilder(transferInfo, referenceBlock);
