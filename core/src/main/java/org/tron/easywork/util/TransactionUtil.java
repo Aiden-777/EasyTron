@@ -50,13 +50,23 @@ public class TransactionUtil {
     }
 
     /**
-     * 获取交易合约类型
+     * 获取交易中第一个合约的类型
      *
      * @param transaction 交易
      * @return 合约类型
      */
     public static Chain.Transaction.Contract.ContractType getFirstContractType(Chain.Transaction transaction) {
         return transaction.getRawData().getContract(0).getType();
+    }
+
+    /**
+     * 获取交易中第一个合约的权限ID
+     *
+     * @param transaction 交易
+     * @return 权限ID
+     */
+    public static int getFirstPermissionId(Chain.Transaction transaction) {
+        return transaction.getRawData().getContract(0).getPermissionId();
     }
 
 

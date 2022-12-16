@@ -142,7 +142,7 @@ public abstract class BaseTransferHandler implements LocalTransfer, TransferPars
     @Override
     public TransferInfo parse(Chain.Transaction transaction) throws InvalidProtocolBufferException, SmartParamDecodeException, FunctionSelectorException {
         // 检查交易是否成功
-        boolean status = transaction.getRet(0).getContractRet().getNumber() == 1;
+        boolean status = TransactionUtil.isTransactionSuccess(transaction);
 
         // 合约
         Chain.Transaction.Contract contract = transaction.getRawData().getContract(0);
@@ -166,6 +166,7 @@ public abstract class BaseTransferHandler implements LocalTransfer, TransferPars
         transferInfo.setId(tid);
         transferInfo.setStatus(status ? TransactionStatus.SUCCESS : TransactionStatus.FAILED);
         transferInfo.setMemo(memoData == ByteString.EMPTY ? null : memoData.toStringUtf8());
+        transferInfo.setPermissionId(TransactionUtil.getFirstPermissionId(transaction));
 
         return transferInfo;
     }
