@@ -20,6 +20,11 @@ public final class TronConstants {
     public static final BigDecimal TRX_SUN_RATE = new BigDecimal(1000000);
 
     /**
+     * trx 精度
+     */
+    public static final int TRX_DECIMAL = 6;
+
+    /**
      * Transfer事件 - Event Log
      * <a href="https://cn.developers.tron.network/docs/event#log-%E8%A7%A3%E7%A0%81">LOG 解码</a>
      * 通过keccak256计算后的结果
