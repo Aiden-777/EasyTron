@@ -1,6 +1,7 @@
 package org.tron.easywork.util;
 
 import org.bouncycastle.util.encoders.Hex;
+import org.tron.easywork.constant.TronConstants;
 import org.tron.easywork.model.AccountInfo;
 import org.tron.trident.core.key.KeyPair;
 import org.tron.trident.utils.Base58Check;
@@ -32,10 +33,10 @@ public class AccountUtils {
      */
     public static boolean isTronAddress(String address) {
         try {
-            if (address.startsWith("T") && address.length() == 34) {
+            if (address.startsWith(TronConstants.ADDRESS_BASE58_PREFIX) && address.length() == TronConstants.ADDRESS_BASE58_LENGTH) {
                 Base58Check.base58ToBytes(address);
                 return true;
-            } else if (address.startsWith("41") && address.length() == 42) {
+            } else if (address.startsWith(TronConstants.ADDRESS_HEX_PREFIX) && address.length() == TronConstants.ADDRESS_HEX_LENGTH) {
                 Hex.decode(address);
                 return true;
             }

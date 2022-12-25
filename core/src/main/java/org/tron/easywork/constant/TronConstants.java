@@ -43,4 +43,26 @@ public final class TronConstants {
             Hex.toHexString(
                     new Keccak.Digest256().digest("transfer(address,uint256)".getBytes())
             ).substring(0, 8);
+
+    /**
+     * Hex格式地址开头
+     */
+    public static final String ADDRESS_HEX_PREFIX ="41";
+
+    /**
+     * Base58格式地址开头
+     */
+    public static final String ADDRESS_BASE58_PREFIX ="T";
+
+    /**
+     * Hex格式地址长度
+     */
+    public static final int ADDRESS_HEX_LENGTH =42;
+
+    /**
+     * Base58格式地址长度
+     */
+    public static final int ADDRESS_BASE58_LENGTH =34;
+
+
 }
