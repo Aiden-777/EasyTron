@@ -83,8 +83,10 @@ public class Trc20ContractUtil {
      *
      * @param triggerSmartContract 智能合约
      * @return 到账地址+金额
+     * @throws FunctionSelectorException 函数选择器错误
+     * @throws SmartParamDecodeException 转账数据解析错误
      */
-    public static TransferFunctionParam getTransferFunctionParam(Contract.TriggerSmartContract triggerSmartContract) throws SmartParamDecodeException, FunctionSelectorException {
+    public static TransferFunctionParam getTransferFunctionParam(Contract.TriggerSmartContract triggerSmartContract) throws FunctionSelectorException, SmartParamDecodeException {
         String data = Hex.toHexString(triggerSmartContract.getData().toByteArray());
         return getTransferFunctionParam(data);
     }
@@ -94,9 +96,10 @@ public class Trc20ContractUtil {
      *
      * @param data triggerSmartContract.data
      * @return 转账数据(到账地址 、 金额)
+     * @throws FunctionSelectorException 函数选择器错误
      * @throws SmartParamDecodeException 转账数据解析错误
      */
-    public static TransferFunctionParam getTransferFunctionParam(String data) throws SmartParamDecodeException, FunctionSelectorException {
+    public static TransferFunctionParam getTransferFunctionParam(String data) throws FunctionSelectorException, SmartParamDecodeException {
         // 函数选择器，必须为【a9059cbb】
         String funcId = data.substring(0, 8);
         if (!TronConstants.TRANSFER_FUNC_ID_BY_KECCAK256.equals(funcId)) {
