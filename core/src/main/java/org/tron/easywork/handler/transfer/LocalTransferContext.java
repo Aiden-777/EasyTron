@@ -28,7 +28,7 @@ public class LocalTransferContext {
         transferHandlers.put(name, transferHandler);
     }
 
-    public LocalTransfer getHandler(String handlerName) {
+    public BaseTransferHandler getHandler(String handlerName) {
         return transferHandlers.get(handlerName);
     }
 
