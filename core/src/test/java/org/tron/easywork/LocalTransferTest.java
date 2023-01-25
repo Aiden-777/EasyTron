@@ -17,12 +17,10 @@ import org.tron.trident.abi.datatypes.Function;
 import org.tron.trident.abi.datatypes.generated.Uint256;
 import org.tron.trident.core.ApiWrapper;
 import org.tron.trident.core.exceptions.IllegalException;
-import org.tron.trident.crypto.Hash;
 import org.tron.trident.proto.Chain;
 import org.tron.trident.utils.Convert;
 
 import java.math.BigDecimal;
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -118,14 +116,6 @@ public class LocalTransferTest extends BaseTest {
      * 1dd048b5183e0d468a7891ad8db79cce6e1046957cd218b75e4e44aed5be27b3
      */
     public void localTransfer(TransferInfo transferInfo) throws IllegalException {
-        // 获取参考区块
-        Chain.Block nowBlock = wrapper.getNowBlock();
-        // 区块高度
-        long blockHeight = nowBlock.getBlockHeader().getRawData().getNumber();
-
-        byte[] blockNum = ByteBuffer.allocate(Long.BYTES).putLong(blockHeight).array();
-        byte[] blockHash = Hash.sha256(nowBlock.getBlockHeader().getRawData().toByteArray());
-
         // 当前时间
         Date now = new Date();
 
@@ -178,6 +168,11 @@ public class LocalTransferTest extends BaseTest {
                     .build();
         }
 
+        // 获取参考区块
+        Chain.Block nowBlock = wrapper.getNowBlock();
+
+        // 自定义引用区块信息类
+        ReferenceBlock referenceBlock = new ReferenceBlock(nowBlock.getBlockHeader());
 
         // 构造交易信息
         Chain.Transaction.Builder transactionBuilder = Chain.Transaction.newBuilder();
@@ -189,9 +184,9 @@ public class LocalTransferTest extends BaseTest {
                         // 过期时间
                         .setExpiration(calendar.getTimeInMillis())
                         // 参考区块信息
-                        .setRefBlockHash(ByteString.copyFrom(subArray(blockHash, 8, 16)))
+                        .setRefBlockHash(referenceBlock.getRefBlockHash())
                         // 参考区块信息
-                        .setRefBlockBytes(ByteString.copyFrom(subArray(blockNum, 6, 8)))
+                        .setRefBlockBytes(referenceBlock.getRefBlockBytes())
                         // 添加合约信息
                         .addContract(
                                 Chain.Transaction.Contract.newBuilder()
@@ -205,7 +200,7 @@ public class LocalTransferTest extends BaseTest {
                         // 备注
                         .setData(ByteString.copyFromUtf8("备注一份"))
                         // trc20 手续费限制
-                        .setFeeLimit(Convert.toSun(BigDecimal.TEN, Convert.Unit.TRX).longValue())
+                        .setFeeLimit(Convert.toSun(BigDecimal.valueOf(15), Convert.Unit.TRX).longValue())
         );
         Chain.Transaction transaction = transactionBuilder.build();
         // 签名
@@ -214,16 +209,6 @@ public class LocalTransferTest extends BaseTest {
         String tid = wrapper.broadcastTransaction(signedTxn);
         log.debug("交易ID：{}", tid);
     }
-
-    /**
-     * # 333 - 分割数组
-     */
-    public static byte[] subArray(byte[] input, int start, int end) {
-        byte[] result = new byte[end - start];
-        System.arraycopy(input, start, result, 0, end - start);
-        return result;
-    }
-
 
     /**
      * 将不同类型的转账封装到一个类中（初级demo级别）

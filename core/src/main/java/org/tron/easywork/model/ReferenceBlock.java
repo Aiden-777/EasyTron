@@ -9,6 +9,7 @@ import java.nio.ByteBuffer;
 
 /**
  * 引用区块，要求范围最新区块 65535 以内
+ * <a href="https://cn.developers.tron.network/v3.7/docs/%E6%9C%AC%E5%9C%B0%E6%9E%84%E5%BB%BA%E4%BA%A4%E6%98%93">文档搜索：本地构建交易</a>
  * <p>
  * 本地构建交易
  * bytes ref_block_bytes = 1;   //最新块高度的第6到8（不包含）之间的字节
