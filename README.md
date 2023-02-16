@@ -1,6 +1,8 @@
 # EasyTron
+**娱乐项目**
 
 [trident-java](https://github.com/tronprotocol/trident) 的轻量扩展，将常用解码步骤做了进一步的封装。
+
 
 本库封装了 Trx、Trc10、Trc20 常用功能，本地构造交易转账、读取解码后的交易，变得十分简单。
 同时，不影响使用 trident 原有的各种功能。
