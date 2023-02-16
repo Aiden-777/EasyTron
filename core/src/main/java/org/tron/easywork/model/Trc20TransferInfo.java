@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.tron.easywork.enums.TransferType;
+import org.tron.trident.proto.Chain;
 
 import java.math.BigDecimal;
 
@@ -38,6 +39,12 @@ public class Trc20TransferInfo extends TransferInfo {
     public Trc20TransferInfo(String from, String to, BigDecimal amount, String contractAddress) {
         super(from, to, amount);
         this.contractAddress = contractAddress;
+    }
+
+
+    @Override
+    public Chain.Transaction.Contract.ContractType supportContractType() {
+        return Chain.Transaction.Contract.ContractType.TriggerSmartContract;
     }
 
     @Override

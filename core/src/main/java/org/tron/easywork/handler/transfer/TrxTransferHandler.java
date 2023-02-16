@@ -1,11 +1,9 @@
 package org.tron.easywork.handler.transfer;
 
 import com.google.protobuf.Any;
-import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.tron.easywork.enums.TransferType;
-import org.tron.easywork.model.TransferInfo;
-import org.tron.easywork.util.TransactionUtil;
+import org.tron.easywork.model.Transfer;
+import org.tron.easywork.util.TransferUtil;
 import org.tron.trident.core.ApiWrapper;
 import org.tron.trident.proto.Chain;
 import org.tron.trident.proto.Contract;
@@ -13,52 +11,32 @@ import org.tron.trident.proto.Contract;
 /**
  * @author Admin
  * @version 1.0
- * @time 2022-10-30 18:48
+ * @time 2023-02-11 10:38
  */
-public class TrxTransferHandler extends BaseTransferHandler {
+public class TrxTransferHandler extends BaseTransferHandler<Contract.TransferContract> {
 
     @Override
-    public Chain.Transaction.Contract.ContractType getContractType() {
+    protected Chain.Transaction.Contract.ContractType getContractType() {
         return Chain.Transaction.Contract.ContractType.TransferContract;
     }
 
     @Override
-    public TransferType getTransferType() {
-        return TransferType.TRX;
-    }
-
-    @Override
-    protected Any createContractParameter(TransferInfo transferInfo) {
-        TransferInfo transfer = this.checkAndTranslate(transferInfo);
-
+    protected Any createContractParameter(Transfer transfer) {
         Contract.TransferContract contract = Contract.TransferContract.newBuilder()
                 .setAmount(transfer.getAmount().longValue())
                 .setOwnerAddress(ApiWrapper.parseAddress(transfer.getFrom()))
                 .setToAddress(ApiWrapper.parseAddress(transfer.getTo()))
                 .build();
-
         return Any.pack(contract);
     }
 
     @Override
-    protected TransferInfo checkAndTranslate(TransferInfo transferInfo) {
-        if (TransferInfo.class == transferInfo.getClass()) {
-            return transferInfo;
-        }
-        throw new UnsupportedOperationException("仅支持trx操作，提供了错误的交易类型：" + transferInfo.getClass());
-    }
-
-    @Override
-    protected GeneratedMessageV3 unpack(Any any) throws InvalidProtocolBufferException {
+    protected Contract.TransferContract unpack(Any any) throws InvalidProtocolBufferException {
         return any.unpack(Contract.TransferContract.class);
     }
 
     @Override
-    public TransferInfo getTransferInfo(GeneratedMessageV3 contract) {
-        if (contract instanceof Contract.TransferContract transferContract) {
-            return TransactionUtil.getTransferInfo(transferContract);
-        }
-        throw new ClassCastException("不支持的类：" + contract.getClass().getName() + "。请提供 TransferContract 类型对象!");
+    protected Transfer getTransferInfo(Contract.TransferContract transferContract) {
+        return TransferUtil.getTransferInfo(transferContract);
     }
-
 }

@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.tron.easywork.enums.TransactionStatus;
 import org.tron.easywork.enums.TransferType;
+import org.tron.trident.proto.Chain;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -66,6 +67,16 @@ public class TransferInfo {
      */
     private Integer permissionId;
 
+    /**
+     * 创建时间
+     */
+    private Long timestamp;
+
+    /**
+     * 过期时间
+     */
+    private Long expiration;
+
 
     public TransferInfo() {
     }
@@ -74,6 +85,15 @@ public class TransferInfo {
         this.from = from;
         this.to = to;
         this.amount = amount;
+    }
+
+    /**
+     * 支持的合约类型
+     *
+     * @return 合约类型
+     */
+    public Chain.Transaction.Contract.ContractType supportContractType() {
+        return Chain.Transaction.Contract.ContractType.TransferContract;
     }
 
 

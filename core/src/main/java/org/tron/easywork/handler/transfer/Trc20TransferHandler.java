@@ -1,14 +1,12 @@
 package org.tron.easywork.handler.transfer;
 
 import com.google.protobuf.Any;
-import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.tron.easywork.enums.TransferType;
 import org.tron.easywork.exception.FunctionSelectorException;
 import org.tron.easywork.exception.SmartParamDecodeException;
-import org.tron.easywork.model.TransferInfo;
-import org.tron.easywork.model.Trc20TransferInfo;
-import org.tron.easywork.util.TransactionUtil;
+import org.tron.easywork.model.ReferenceBlock;
+import org.tron.easywork.model.Transfer;
+import org.tron.easywork.util.TransferUtil;
 import org.tron.trident.abi.FunctionEncoder;
 import org.tron.trident.abi.TypeReference;
 import org.tron.trident.abi.datatypes.Address;
@@ -27,10 +25,9 @@ import java.util.List;
 /**
  * @author Admin
  * @version 1.0
- * @time 2022-10-30 16:12
+ * @time 2023-02-11 09:18
  */
-public class Trc20TransferHandler extends BaseTransferHandler {
-
+public class Trc20TransferHandler extends BaseTransferHandler<Contract.TriggerSmartContract> {
     /**
      * 默认矿工费限制，单位sum
      */
@@ -46,25 +43,19 @@ public class Trc20TransferHandler extends BaseTransferHandler {
     }
 
     @Override
-    public Chain.Transaction.Contract.ContractType getContractType() {
+    protected Chain.Transaction.Contract.ContractType getContractType() {
         return Chain.Transaction.Contract.ContractType.TriggerSmartContract;
     }
 
-    @Override
-    public TransferType getTransferType() {
-        return TransferType.TRC20;
-    }
 
     @Override
-    protected Any createContractParameter(TransferInfo transferInfo) {
-        Trc20TransferInfo trc20Transfer = this.checkAndTranslate(transferInfo);
-
+    protected Any createContractParameter(Transfer transfer) {
         // 构造trc20转账函数
         Function function = new Function(
                 "transfer",
                 Arrays.asList(
-                        new Address(trc20Transfer.getTo()),
-                        new Uint256(trc20Transfer.getAmount().toBigInteger())),
+                        new Address(transfer.getTo()),
+                        new Uint256(transfer.getAmount().toBigInteger())),
                 List.of(new TypeReference<Bool>() {
                 })
         );
@@ -72,41 +63,39 @@ public class Trc20TransferHandler extends BaseTransferHandler {
         String encodedHex = FunctionEncoder.encode(function);
         // 构造trc20合约信息
         Contract.TriggerSmartContract contract = Contract.TriggerSmartContract.newBuilder()
-                .setOwnerAddress(ApiWrapper.parseAddress(trc20Transfer.getFrom()))
-                .setContractAddress(ApiWrapper.parseAddress(trc20Transfer.getContractAddress()))
+                .setOwnerAddress(ApiWrapper.parseAddress(transfer.getFrom()))
+                .setContractAddress(ApiWrapper.parseAddress(transfer.getContractAddress()))
                 .setData(ApiWrapper.parseHex(encodedHex))
                 .build();
         return Any.pack(contract);
     }
 
     @Override
-    protected void setFeeLimit(Chain.Transaction.raw.Builder rawBuilder, TransferInfo transferInfo) {
-        Trc20TransferInfo trc20Transfer = this.checkAndTranslate(transferInfo);
-        if (null != trc20Transfer.getFeeLimit()) {
-            rawBuilder.setFeeLimit(trc20Transfer.getFeeLimit());
+    protected Chain.Transaction.raw.Builder initTransactionRawBuilder(Transfer transferInfo, ReferenceBlock referenceBlock) {
+        Chain.Transaction.raw.Builder rawBuilder = super.initTransactionRawBuilder(transferInfo, referenceBlock);
+        // 设置智能合约手续费限制
+        if (null != transferInfo.getFeeLimit()) {
+            rawBuilder.setFeeLimit(transferInfo.getFeeLimit());
         } else {
             rawBuilder.setFeeLimit(defaultFeeLimit);
         }
+        return rawBuilder;
     }
 
     @Override
-    protected Trc20TransferInfo checkAndTranslate(TransferInfo transferInfo) {
-        if (transferInfo instanceof Trc20TransferInfo trc20TransferInfo) {
-            return trc20TransferInfo;
-        }
-        throw new UnsupportedOperationException("仅支持trc20操作，提供了错误的交易类型：" + transferInfo.getClass());
+    public Transfer parse(Chain.Transaction transaction) throws InvalidProtocolBufferException, SmartParamDecodeException, FunctionSelectorException {
+        Transfer parse = super.parse(transaction);
+        parse.setFeeLimit(transaction.getRawData().getFeeLimit());
+        return parse;
     }
 
     @Override
-    protected GeneratedMessageV3 unpack(Any any) throws InvalidProtocolBufferException {
+    protected Contract.TriggerSmartContract unpack(Any any) throws InvalidProtocolBufferException {
         return any.unpack(Contract.TriggerSmartContract.class);
     }
 
     @Override
-    public Trc20TransferInfo getTransferInfo(GeneratedMessageV3 contract) throws SmartParamDecodeException, FunctionSelectorException {
-        if (contract instanceof Contract.TriggerSmartContract triggerSmartContract) {
-            return TransactionUtil.getTransferInfo(triggerSmartContract);
-        }
-        throw new ClassCastException("不支持的类：" + contract.getClass().getName() + "。请提供 TriggerSmartContract 类型对象!");
+    protected Transfer getTransferInfo(Contract.TriggerSmartContract triggerSmartContract) throws SmartParamDecodeException, FunctionSelectorException {
+        return TransferUtil.getTransferInfo(triggerSmartContract);
     }
 }

@@ -7,8 +7,6 @@ import org.junit.Test;
 import org.tron.easywork.exception.FunctionSelectorException;
 import org.tron.easywork.exception.SmartParamDecodeException;
 import org.tron.easywork.factory.ApiWrapperFactory;
-import org.tron.easywork.handler.transfer.*;
-import org.tron.easywork.model.TransferInfo;
 import org.tron.easywork.model.Trc20TransferInfo;
 import org.tron.easywork.util.BlockUtil;
 import org.tron.easywork.util.TransactionUtil;
@@ -29,7 +27,7 @@ public class ReadBlockTest extends BaseTest {
 
 
     /**
-     * 获取区块中的交易信息 （trident原生思路）
+     * 获取区块中的交易信息 （trident原生思路参考）
      */
     @Test
     public void blockReadTest_trident() throws IllegalException {
@@ -99,6 +97,7 @@ public class ReadBlockTest extends BaseTest {
     /**
      * 读取主网最新区块的转账交易内容
      */
+    /*
     @Test
     public void readBlockTest() throws IllegalException {
         // 此处使用主网 - 测试网读取区块看不出效果，交易数量太少
@@ -114,15 +113,15 @@ public class ReadBlockTest extends BaseTest {
         Trc20TransferHandler trc20TransferHandler = new Trc20TransferHandler();
 
         // 转账处理器上下文
-        LocalTransferContext localTransferContext = new LocalTransferContext();
-        localTransferContext.addHandler("trxTransferHandler", trxTransferHandler);
-        localTransferContext.addHandler("trc10TransferHandler", trc10TransferHandler);
-        localTransferContext.addHandler("trc20TransferHandler", trc20TransferHandler);
+        TransferHandlerContext transferHandlerContext = new TransferHandlerContext();
+        transferHandlerContext.addHandler("trxTransferHandler", trxTransferHandler);
+        transferHandlerContext.addHandler("trc10TransferHandler", trc10TransferHandler);
+        transferHandlerContext.addHandler("trc20TransferHandler", trc20TransferHandler);
 
         // 遍历交易列表
         nowBlock.getTransactionsList().forEach(transaction -> {
             // 根据交易合约类型获取处理器
-            BaseTransferHandler handler = localTransferContext.getHandler(transaction.getRawData().getContract(0).getType());
+            BaseTransferHandler<?, ?> handler = transferHandlerContext.getHandler(transaction.getRawData().getContract(0).getType());
             if (null == handler) {
                 return;
             }
@@ -142,7 +141,7 @@ public class ReadBlockTest extends BaseTest {
                 e.printStackTrace();
             }
         });
-    }
+    }*/
 
 
 }

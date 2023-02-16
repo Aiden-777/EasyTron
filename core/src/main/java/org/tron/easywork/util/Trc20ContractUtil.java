@@ -117,7 +117,7 @@ public class Trc20ContractUtil {
             }, amount);
             return new TransferFunctionParam(addressType.getValue(), new BigDecimal(amountType.getValue()));
         } catch (Exception e) {
-            throw new SmartParamDecodeException("智能合约转账函数参数异常:" + data, e.getCause());
+            throw new SmartParamDecodeException("智能合约转账函数参数异常(ABI解码错误):" + data, e.getCause());
         }
     }
 

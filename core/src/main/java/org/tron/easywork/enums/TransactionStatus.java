@@ -1,6 +1,8 @@
 package org.tron.easywork.enums;
 
 /**
+ * 交易状态
+ *
  * @author Admin
  * @version 1.0
  * @time 2022-10-14 22:03
@@ -18,6 +20,6 @@ public enum TransactionStatus {
     /**
      * 失败
      */
-    FAILED
+    ERROR,
 
 }

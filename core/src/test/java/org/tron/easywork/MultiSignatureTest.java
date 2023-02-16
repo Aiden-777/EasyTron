@@ -3,10 +3,7 @@ package org.tron.easywork;
 import com.google.protobuf.ByteString;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.easywork.factory.ApiWrapperFactory;
-import org.tron.easywork.handler.contract.TransferContractHandler;
-import org.tron.easywork.handler.transfer.Trc20TransferHandler;
-import org.tron.easywork.model.*;
-import org.tron.easywork.util.Trc20ContractUtil;
+import org.tron.easywork.model.AccountInfo;
 import org.tron.trident.core.ApiWrapper;
 import org.tron.trident.core.exceptions.IllegalException;
 import org.tron.trident.proto.Chain;
@@ -19,7 +16,6 @@ import org.tron.trident.utils.Convert;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -42,7 +38,7 @@ public class MultiSignatureTest extends BaseTest {
      * 296fc6ae7c8a61c0005b64d38b51c99623fb7475277ab2bbc0439b07f7a86afe
      */
     // @Test
-    public void multiSignature() throws IllegalException {
+/*    public void multiSignature() throws IllegalException {
         // TKjPqKq77777FPKUdLRMPNUWtU4jNEpUQF   主账号，业务所致此处未用到私钥
         AccountInfo account = new AccountInfo("");
 
@@ -83,7 +79,7 @@ public class MultiSignatureTest extends BaseTest {
         // 广播并返回ID
         String tid = wrapper.broadcastTransaction(signTransaction);
         log.debug(tid);
-    }
+    }*/
 
     /**
      * 更新账户权限，目前需要花费100trx
@@ -205,43 +201,6 @@ public class MultiSignatureTest extends BaseTest {
 
         // 广播并返回交易ID
         String id = wrapper.broadcastTransaction(sign2);
-        log.debug(id);
-
-    }
-
-    /**
-     * 封装多签 - 非本地构造交易 - 过时的
-     */
-    // @Test
-    public void multiSignature2_trident() throws IllegalException {
-        // TKjPqKq77777FPKUdLRMPNUWtU4jNEpUQF   主账号，业务所致此处未用到私钥
-        AccountInfo account = new AccountInfo("");
-
-        // TBjxJTNwZeaKrbHyDum5Rwj1xU99999n8Z   具有某些活动权限
-        AccountInfo account1 = new AccountInfo("");
-
-        // TEczEK6uzD88888QhstH6QDwB167ZsXPrb   具有某些活动权限
-        AccountInfo account2 = new AccountInfo("");
-
-        ApiWrapper wrapper = ApiWrapperFactory.create(ApiWrapperFactory.NetType.Shasta, account.getHexPrivateKey(), null);
-
-        // 金额 sun
-        BigDecimal amount = Convert.toSun("1", Convert.Unit.TRX);
-        // trx 转账信息
-        TransferInfo transferInfo = new TransferInfo(account.getBase58CheckAddress(), toAddress, amount);
-        transferInfo.setMemo("多签备注");
-        // trx 转账处理器
-        TransferContractHandler transferContractHandler = new TransferContractHandler(wrapper);
-        // 多签转账
-        String id = transferContractHandler.transfer(transferInfo, Arrays.asList(account1.getKeyPair(), account2.getKeyPair()), 2);
-
-        /*// trc20 转账
-        BigDecimal transferAmount = TronConverter.getTransferAmount(BigDecimal.ONE, 6);
-        TransferInfo transferInfo = new Trc20TransferInfo(account.getBase58CheckAddress(),toAddress, transferAmount, "TFd1piJ8iXmJQicTicq4zChDSNSMLPFR4w");
-        transferInfo.setMemo("多签备注");
-        TriggerSmartContractHandler triggerSmartContractHandler = new TriggerSmartContractHandler(wrapper);
-        String id = triggerSmartContractHandler.transfer(transferInfo, Arrays.asList(account2.getKeyPair(), account3.getKeyPair()), 2);*/
-
         log.debug(id);
 
     }

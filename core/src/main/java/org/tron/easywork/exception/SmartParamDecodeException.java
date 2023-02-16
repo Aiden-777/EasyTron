@@ -2,6 +2,7 @@ package org.tron.easywork.exception;
 
 /**
  * 智能合约 转账参数 数据解析异常
+ * ABI解码错误
  *
  * @author Admin
  * @version 1.0

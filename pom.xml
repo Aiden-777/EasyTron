@@ -7,7 +7,7 @@
     <groupId>org.tron.easywork</groupId>
     <artifactId>parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.3</version>
+    <version>2.0</version>
     <modules>
         <module>common</module>
         <module>core</module>

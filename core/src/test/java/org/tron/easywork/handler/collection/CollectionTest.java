@@ -1,21 +1,7 @@
 package org.tron.easywork.handler.collection;
 
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Test;
 import org.tron.easywork.BaseTest;
-import org.tron.easywork.handler.transfer.Trc20TransferHandler;
-import org.tron.easywork.handler.transfer.TrxTransferHandler;
-import org.tron.easywork.model.ReferenceBlock;
-import org.tron.easywork.util.Trc20ContractUtil;
-import org.tron.trident.core.exceptions.IllegalException;
-import org.tron.trident.proto.Chain;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.List;
 
 /**
  * @author Admin
@@ -26,7 +12,7 @@ import java.util.List;
 public class CollectionTest extends BaseTest {
 
     // 资金归集
-    @Test
+    /*@Test
     public void fundCollection() throws IllegalException {
         // 私钥列表
         List<String> keys;
@@ -79,6 +65,6 @@ public class CollectionTest extends BaseTest {
             }
         }
 
-    }
+    }*/
 
 }

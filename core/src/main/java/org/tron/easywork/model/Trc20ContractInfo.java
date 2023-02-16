@@ -23,6 +23,11 @@ public class Trc20ContractInfo {
     private final String address;
 
     /**
+     * 合约名称
+     */
+    private String symbol;
+
+    /**
      * 合约精度
      */
     private final BigDecimal decimals;
