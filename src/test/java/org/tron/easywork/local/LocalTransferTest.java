@@ -48,7 +48,7 @@ public class LocalTransferTest extends BaseTest {
         TransferHandlerContext context = this.createTransferHandlerContext();
 
         // 真实金额，单位：个
-        BigDecimal realAmount = BigDecimal.valueOf(1.2);
+        BigDecimal realAmount = BigDecimal.valueOf(5);
         // TRC20合约信息
         Trc20ContractInfo trc20ContractInfo = Trc20ContractUtil.readTrc20ContractInfo(contractAddress, wrapper);
         // 实际金额，单位：合约最小单位
@@ -56,7 +56,7 @@ public class LocalTransferTest extends BaseTest {
         // Trc20转账信息
         Transfer transfer = this.createTrc20Transfer(from, to, amount);
         // 转账处理器
-        TransferHandler handler = context.getHandler(transfer.getTransferType().supportContractType());
+        TransferHandler handler = context.getHandler(transfer.getTransferType().supportContractType);
 
         ApiWrapper apiWrapper = ApiWrapper.ofShasta(key);
         Chain.Block nowBlock = apiWrapper.getNowBlock();
@@ -72,7 +72,7 @@ public class LocalTransferTest extends BaseTest {
     @Test
     public void transferTrx() throws IllegalException {
         // 真实金额，单位：个
-        BigDecimal realAmount = BigDecimal.valueOf(1.2);
+        BigDecimal realAmount = BigDecimal.valueOf(9);
         // 实际金额，单位：sum
         BigDecimal amount = Convert.toSun(realAmount, Convert.Unit.TRX);
         // TRX转账信息
@@ -92,7 +92,7 @@ public class LocalTransferTest extends BaseTest {
     @Test
     public void transferTrc20() throws IllegalException {
         // 真实金额，单位：个
-        BigDecimal realAmount = BigDecimal.valueOf(1.2);
+        BigDecimal realAmount = BigDecimal.valueOf(100);
         // TRC20合约信息
         Trc20ContractInfo trc20ContractInfo = Trc20ContractUtil.readTrc20ContractInfo(contractAddress, wrapper);
         // 实际金额，单位：合约最小单位
@@ -147,7 +147,7 @@ public class LocalTransferTest extends BaseTest {
         calendar.add(Calendar.HOUR, 8);
 
         // 合约类型
-        Chain.Transaction.Contract.ContractType contractType = transfer.getTransferType().supportContractType();
+        Chain.Transaction.Contract.ContractType contractType = transfer.getTransferType().supportContractType;
         // 合约信息
         GeneratedMessageV3 message;
 

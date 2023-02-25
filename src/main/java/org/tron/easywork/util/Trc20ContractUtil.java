@@ -45,7 +45,8 @@ public class Trc20ContractUtil {
         org.tron.trident.core.contract.Contract contract = wrapper.getContract(concatAddress);
         Trc20Contract trc20Contract = new Trc20Contract(contract, concatAddress, wrapper);
         BigInteger decimals = trc20Contract.decimals();
-        return new Trc20ContractInfo(concatAddress, new BigDecimal(decimals));
+        String symbol = trc20Contract.symbol();
+        return new Trc20ContractInfo(concatAddress, symbol, new BigDecimal(decimals));
     }
 
     /**

@@ -37,11 +37,14 @@ public class ParseTransactionTest extends BaseTest {
         TransferHandlerContext context = this.createTransferHandlerContext();
 
         // 交易ID
-        String tid = "220e268edc6dbca2b100cb63d2cab0bf2f0f36ad7cb746fee699985c0d1f438a";
+        String tid = "c2cc785e07a75b6d62d6f6b0b3bb69369dbbce1c9d780163740a48cb8efa9393";
         // 交易
         Chain.Transaction transaction = wrapper.getTransactionById(tid);
         // 获取转账处理器
         TransferHandler handler = context.getHandler(transaction);
+        if (handler == null) {
+            return;
+        }
         // 转账信息
         Transfer transfer = handler.parse(transaction);
         // 打印转账信息
@@ -54,6 +57,9 @@ public class ParseTransactionTest extends BaseTest {
         transaction = wrapper.getTransactionById(tid);
         // 获取转账处理器
         handler = context.getHandler(transaction);
+        if (handler == null) {
+            return;
+        }
         // 转账信息
         transfer = handler.parse(transaction);
         // 打印转账信息

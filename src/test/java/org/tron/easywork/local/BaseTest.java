@@ -26,7 +26,7 @@ public class BaseTest {
     /**
      * 私钥
      */
-    protected String key = "151b073fe0a76e0eb4e57b9a1cba94abd5cffb46202cb0cf6cf8b0b6296fc7ef";
+    protected String key = "320b8b4de76641ad2b81ea72de6419a39b143b8414c710a0fbeb3a5cc12a7d46";
     /**
      * trident API 包装器
      */
@@ -38,7 +38,7 @@ public class BaseTest {
     /**
      * 到账地址
      */
-    protected String to = "TP6QorvxAJ4bXg21LterCpGi5oZ2PxybCZ";
+    protected String to = "TVvSx8zgvqcc8nWuYArLfdkqerAWHibf78";
     /**
      * TRC20合约地址
      */

@@ -25,7 +25,7 @@ public class Trc20ContractInfo {
     /**
      * 合约名称
      */
-    private String symbol;
+    private final String symbol;
 
     /**
      * 合约精度
@@ -37,8 +37,9 @@ public class Trc20ContractInfo {
      */
     private final BigDecimal rate;
 
-    public Trc20ContractInfo(String address, BigDecimal decimals) {
+    public Trc20ContractInfo(String address, String symbol, BigDecimal decimals) {
         this.address = address;
+        this.symbol = symbol;
         this.decimals = decimals;
         this.rate = BigDecimal.TEN.pow(decimals.intValue());
     }
