@@ -1,4 +1,5 @@
 # EasyTron
+**娱乐项目**
 
 [trident-java](https://github.com/tronprotocol/trident) 的轻量扩展，将常用解码步骤做了进一步的封装。
 
@@ -51,12 +52,7 @@
     <dependency>
         <groupId>org.tron.easywork</groupId>
         <artifactId>core</artifactId>
-        <version>1.3</version>
-    </dependency>
-    <dependency>
-        <groupId>org.tron.easywork</groupId>
-        <artifactId>common</artifactId>
-        <version>1.3</version>
+        <version>2.0</version>
     </dependency>
 
 </dependencies>
