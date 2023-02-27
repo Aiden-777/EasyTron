@@ -13,28 +13,22 @@ public enum TransferType {
     /**
      * TRX
      */
-    TRX(Chain.Transaction.Contract.ContractType.TransferContract, "TRX"),
+    TRX(Chain.Transaction.Contract.ContractType.TransferContract),
     /**
      * TRC20
      */
-    TRC20(Chain.Transaction.Contract.ContractType.TriggerSmartContract, "TRC20"),
+    TRC20(Chain.Transaction.Contract.ContractType.TriggerSmartContract),
     /**
      * TRC10
      */
-    TRC10(Chain.Transaction.Contract.ContractType.TransferAssetContract, "TRC10");
+    TRC10(Chain.Transaction.Contract.ContractType.TransferAssetContract);
 
     /**
      * 支持的合约类型
      */
     public final Chain.Transaction.Contract.ContractType supportContractType;
 
-    /**
-     * 合约名称
-     */
-    public String symbol;
-
-    TransferType(Chain.Transaction.Contract.ContractType supportContractType, String defaultSymbol) {
+    TransferType(Chain.Transaction.Contract.ContractType supportContractType) {
         this.supportContractType = supportContractType;
-        this.symbol = defaultSymbol;
     }
 }

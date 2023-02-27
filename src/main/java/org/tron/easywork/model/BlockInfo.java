@@ -24,7 +24,7 @@ public class BlockInfo {
     /**
      * 转账交易信息（仅包含转账交易）
      */
-    List<TransferInfo> transfers;
+    List<Transfer> transfers;
 
     public BlockInfo() {
     }
@@ -33,7 +33,7 @@ public class BlockInfo {
         this.header = blockHeaderInfo;
     }
 
-    public BlockInfo(BlockHeaderInfo blockHeaderInfo, List<TransferInfo> transfers) {
+    public BlockInfo(BlockHeaderInfo blockHeaderInfo, List<Transfer> transfers) {
         this.header = blockHeaderInfo;
         this.transfers = transfers;
     }
