@@ -61,11 +61,11 @@ public class MultiSignatureTest extends BaseTest {
         // 实际转账金额
         BigDecimal realAmount = BigDecimal.valueOf(1);
         // 合约
-        Trc20ContractInfo trc20ContractInfo = Trc20ContractUtil.readTrc20ContractInfo(testContractAddress, wrapper);
+        Trc20ContractInfo trc20ContractInfo = Trc20ContractUtil.readTrc20ContractInfo(contractAddress, wrapper);
         // 系统转账金额
         BigDecimal transferAmount = trc20ContractInfo.getTransferAmount(realAmount);
         // TRC20转账
-        Transfer transfer = new Transfer(fromAddress, toAddress, transferAmount, TransferType.TRC20);
+        Transfer transfer = new Transfer(fromAddress, to, transferAmount, TransferType.TRC20);
         // 合约地址
         transfer.setContractAddress(trc20ContractInfo.getAddress());
         // 矿工费限制
@@ -182,7 +182,7 @@ public class MultiSignatureTest extends BaseTest {
         Response.TransactionExtention transfer =
                 wrapper.transfer(
                         account.getBase58CheckAddress()
-                        , toAddress
+                        , to
                         , amount.longValue()
                 );
 

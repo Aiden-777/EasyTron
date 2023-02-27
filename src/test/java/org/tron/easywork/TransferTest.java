@@ -27,13 +27,13 @@ public class TransferTest extends BaseTest {
         long realAmount = 11;
 
         // 根据合约地址获取合约信息
-        org.tron.trident.core.contract.Contract contract = wrapper.getContract(testContractAddress);
+        org.tron.trident.core.contract.Contract contract = wrapper.getContract(contractAddress);
         // 构造trc20合约
-        Trc20Contract trc20Contract = new Trc20Contract(contract, fromAccount.getBase58CheckAddress(), wrapper);
+        Trc20Contract trc20Contract = new Trc20Contract(contract, from, wrapper);
 
         // trc20 合约转账
         String tid = trc20Contract.transfer(
-                toAddress,
+                to,
                 realAmount,
                 // 精度
                 trc20Contract.decimals().intValue(),
@@ -55,7 +55,7 @@ public class TransferTest extends BaseTest {
 
         // 远程构造交易
         Response.TransactionExtention transfer =
-                wrapper.transfer(fromAccount.getBase58CheckAddress(), toAddress, sun.longValue());
+                wrapper.transfer(from, to, sun.longValue());
         // 签名
         Chain.Transaction signTransaction = wrapper.signTransaction(transfer);
         // 广播

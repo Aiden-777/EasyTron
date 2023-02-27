@@ -5,6 +5,7 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.GeneratedMessageV3;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
+import org.tron.easywork.BaseTest;
 import org.tron.easywork.handler.transfer.TransferHandler;
 import org.tron.easywork.handler.transfer.TransferHandlerContext;
 import org.tron.easywork.handler.transfer.Trc20TransferHandler;

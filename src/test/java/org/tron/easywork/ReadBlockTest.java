@@ -6,10 +6,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.tron.easywork.exception.FunctionSelectorException;
 import org.tron.easywork.exception.SmartParamDecodeException;
-import org.tron.easywork.factory.ApiWrapperFactory;
-import org.tron.easywork.model.Trc20TransferInfo;
+import org.tron.easywork.handler.transfer.*;
+import org.tron.easywork.model.Transfer;
 import org.tron.easywork.util.BlockUtil;
 import org.tron.easywork.util.TransactionUtil;
+import org.tron.easywork.util.TransferUtil;
+import org.tron.trident.core.ApiWrapper;
+import org.tron.trident.core.Constant;
 import org.tron.trident.core.exceptions.IllegalException;
 import org.tron.trident.proto.Chain;
 
@@ -32,7 +35,7 @@ public class ReadBlockTest extends BaseTest {
     @Test
     public void blockReadTest_trident() throws IllegalException {
         // 此处使用主网 - 测试网读取区块看不出效果，交易数量太少
-        wrapper = ApiWrapperFactory.create(ApiWrapperFactory.NetType.Mainnet, privateKey, apiKey);
+        wrapper = new ApiWrapper(Constant.TRONGRID_MAIN_NET, Constant.TRONGRID_MAIN_NET_SOLIDITY, key);
         // 获取最新区块
         Chain.Block nowBlock = wrapper.getNowBlock();
         // 区块ID
@@ -47,6 +50,7 @@ public class ReadBlockTest extends BaseTest {
         // 遍历
         transactionsList.forEach(
                 transaction -> {
+                    log.debug("--------------------------------");
                     // 交易ID
                     String transactionId = TransactionUtil.getTransactionId(transaction);
                     log.info("交易ID：{}", transactionId);
@@ -70,7 +74,8 @@ public class ReadBlockTest extends BaseTest {
                             org.tron.trident.proto.Contract.TriggerSmartContract triggerSmartContract =
                                     parameter.unpack(org.tron.trident.proto.Contract.TriggerSmartContract.class);
                             // 获取交易详情
-                            Trc20TransferInfo transferInfo = TransactionUtil.getTransferInfo(triggerSmartContract);
+                            Transfer transfer = TransferUtil.getTransferInfo(triggerSmartContract);
+                            log.debug("类型：{}\t到账地址：{}\t金额：{}", transfer.getTransferType(), transfer.getTo(), transfer.getAmount());
                             // ......
                         } catch (InvalidProtocolBufferException e) {
                             log.debug("unpack解包异常");
@@ -87,7 +92,7 @@ public class ReadBlockTest extends BaseTest {
                     }
                     // 如果是trx
                     else if (contractType == Chain.Transaction.Contract.ContractType.TransferContract) {
-                        log.debug("trx");
+                        log.debug("TRX");
                     }
                 }
         );
@@ -97,11 +102,10 @@ public class ReadBlockTest extends BaseTest {
     /**
      * 读取主网最新区块的转账交易内容
      */
-    /*
     @Test
     public void readBlockTest() throws IllegalException {
         // 此处使用主网 - 测试网读取区块看不出效果，交易数量太少
-        wrapper = ApiWrapperFactory.create(ApiWrapperFactory.NetType.Mainnet, privateKey, apiKey);
+        wrapper = new ApiWrapper(Constant.TRONGRID_MAIN_NET, Constant.TRONGRID_MAIN_NET_SOLIDITY, key);
         // 获取最新块
         Chain.Block nowBlock = wrapper.getNowBlock();
 
@@ -121,13 +125,13 @@ public class ReadBlockTest extends BaseTest {
         // 遍历交易列表
         nowBlock.getTransactionsList().forEach(transaction -> {
             // 根据交易合约类型获取处理器
-            BaseTransferHandler<?, ?> handler = transferHandlerContext.getHandler(transaction.getRawData().getContract(0).getType());
+            TransferHandler handler = transferHandlerContext.getHandler(transaction.getRawData().getContract(0).getType());
             if (null == handler) {
                 return;
             }
             try {
                 // 解析交易，不忽略失败的交易
-                TransferInfo transfer = handler.parse(transaction);
+                Transfer transfer = handler.parse(transaction);
                 log.debug("状态：{}\t类型：{}\t到账地址：{}\t金额：{}", transfer.getStatus(), transfer.getTransferType(), transfer.getTo(), transfer.getAmount());
                 // 其他逻辑 ................
             } catch (InvalidProtocolBufferException e) {
@@ -141,7 +145,7 @@ public class ReadBlockTest extends BaseTest {
                 e.printStackTrace();
             }
         });
-    }*/
+    }
 
 
 }

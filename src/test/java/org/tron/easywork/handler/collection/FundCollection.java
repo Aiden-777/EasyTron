@@ -1,9 +1,22 @@
 package org.tron.easywork.handler.collection;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.tron.easywork.enums.TransferType;
 import org.tron.easywork.handler.transfer.Trc20TransferHandler;
 import org.tron.easywork.handler.transfer.TrxTransferHandler;
+import org.tron.easywork.model.AccountInfo;
+import org.tron.easywork.model.ReferenceBlock;
+import org.tron.easywork.model.Transfer;
+import org.tron.easywork.util.Trc20ContractUtil;
 import org.tron.trident.core.ApiWrapper;
+import org.tron.trident.core.exceptions.IllegalException;
+import org.tron.trident.core.key.KeyPair;
+import org.tron.trident.proto.Chain;
+import org.tron.trident.proto.Response;
+import org.tron.trident.utils.Convert;
+
+import java.math.BigDecimal;
 
 /**
  * 资金归集
@@ -44,14 +57,14 @@ public class FundCollection {
         this.trc20TransferHandler = trc20TransferHandler;
         this.wrapper = wrapper;
     }
-    /*
-     *//**
+
+    /**
      * 资金归集 - 归集 trc20 trx
      *
      * @param privateKey     小号私钥 - 转出账户
      * @param referenceBlock 引用区块 - 用于本地构造交易参数
      * @throws InterruptedException 延迟阻塞异常|Sleep睡眠异常
-     *//*
+     */
     public void collection(@NonNull String privateKey, @NonNull ReferenceBlock referenceBlock) throws InterruptedException {
         if (privateKey.trim().length() != 64) {
             throw new RuntimeException("错误私钥:" + privateKey);
@@ -86,10 +99,11 @@ public class FundCollection {
             try {
                 // 派发Trx矿工费 - 无需单独检查矿工费交易ID，如果失败会直接报错
                 // trx转账信息
-                TransferInfo handingFeeTransfer = new TransferInfo(
+                Transfer handingFeeTransfer = new Transfer(
                         fundCollectionConfig.getHandingFeeProviderAddress(),
                         account.getBase58CheckAddress(),
-                        Convert.toSun(fundCollectionConfig.getHandingFeeWithTrx(), Convert.Unit.TRX));
+                        Convert.toSun(fundCollectionConfig.getHandingFeeWithTrx(), Convert.Unit.TRX),
+                        TransferType.TRX);
                 // 构建交易
                 Chain.Transaction handingFeeTransaction = trxTransferHandler.buildLocalTransfer(handingFeeTransfer, referenceBlock);
                 // 签名
@@ -110,15 +124,12 @@ public class FundCollection {
             Thread.sleep(1000);
 
             // trc20转账信息
-            Trc20TransferInfo trc20TransferInfo =
-                    new Trc20TransferInfo(
-                            account.getBase58CheckAddress(),
-                            fundCollectionConfig.getTargetAddressOfTrc20(),
-                            balance,
-                            fundCollectionConfig.getTrc20ContractInfo().getAddress()
-                    );
+            Transfer transfer = new Transfer(account.getBase58CheckAddress(),
+                    fundCollectionConfig.getTargetAddressOfTrc20(),
+                    balance, TransferType.TRC20);
+            transfer.setContractAddress(fundCollectionConfig.getTrc20ContractInfo().getAddress());
             // 构建交易
-            Chain.Transaction transaction = trc20TransferHandler.buildLocalTransfer(trc20TransferInfo, referenceBlock);
+            Chain.Transaction transaction = trc20TransferHandler.buildLocalTransfer(transfer, referenceBlock);
             // 签名
             Chain.Transaction signTransaction = wrapper.signTransaction(transaction, account.getKeyPair());
             // 广播交易
@@ -166,7 +177,8 @@ public class FundCollection {
             }
 
             // trx转账信息
-            TransferInfo incomeTransferInfo = new TransferInfo(account.getBase58CheckAddress(), fundCollectionConfig.getTargetAddressOfTrx(), BigDecimal.valueOf(trxBalance));
+            Transfer incomeTransferInfo = new Transfer(account.getBase58CheckAddress(),
+                    fundCollectionConfig.getTargetAddressOfTrx(), BigDecimal.valueOf(trxBalance), TransferType.TRX);
             // 构造trx转账交易
             Chain.Transaction incomeTransfer = trxTransferHandler.buildLocalTransfer(incomeTransferInfo, referenceBlock);
             // 签名
@@ -178,6 +190,6 @@ public class FundCollection {
             log.debug("trx余额较低，无需归集");
         }
 
-    }*/
+    }
 
 }

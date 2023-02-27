@@ -25,6 +25,7 @@ import org.tron.trident.utils.Base58Check;
 import org.tron.trident.utils.Convert;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author Admin
@@ -69,7 +70,7 @@ public class SomeTest extends BaseTest {
      */
     @Test
     public void importAccount() {
-        AccountInfo accountInfo = new AccountInfo(privateKey);
+        AccountInfo accountInfo = new AccountInfo(key);
         log.debug(accountInfo.toString());
     }
 
@@ -87,8 +88,8 @@ public class SomeTest extends BaseTest {
     // 原始授权
     // @Test
     public void approveTrc20() {
-        Contract contract = wrapper.getContract(testContractAddress);
-        Trc20Contract trc20Contract = new Trc20Contract(contract, fromAccount.getBase58CheckAddress(), wrapper);
+        Contract contract = wrapper.getContract(contractAddress);
+        Trc20Contract trc20Contract = new Trc20Contract(contract, from, wrapper);
         // rc20Contract.approve()
     }
 
@@ -154,11 +155,7 @@ public class SomeTest extends BaseTest {
         BigDecimal amount = Convert.toSun("1", Convert.Unit.TRX);
         // 构造交易
         Response.TransactionExtention transfer =
-                wrapper.transfer(
-                        fromAccount.getBase58CheckAddress()
-                        , toAddress
-                        , amount.longValue()
-                );
+                wrapper.transfer(from, to, amount.longValue());
         // 签名交易
         Chain.Transaction transaction = wrapper.signTransaction(transfer);
 
@@ -191,11 +188,11 @@ public class SomeTest extends BaseTest {
         log.debug("digest:{}", Hex.toHexString(digest));*/
 
         // 对 tid 进行签名
-        byte[] sign = KeyPair.signTransaction(tid, fromAccount.getKeyPair());
+        byte[] sign = KeyPair.signTransaction(tid, wrapper.keyPair);
         log.debug("sign-hex：{}", Hex.toHexString(sign));
 
         // 所有者
-        byte[] owner = Base58Check.base58ToBytes(fromAccount.getBase58CheckAddress());
+        byte[] owner = Base58Check.base58ToBytes(from);
 
         // 签名
         boolean verify = SignatureValidator.verify(tid, sign, owner);
@@ -214,7 +211,7 @@ public class SomeTest extends BaseTest {
 
         // 远程构造交易
         Response.TransactionExtention transfer =
-                wrapper.transfer(fromAccount.getBase58CheckAddress(), toAddress, sun.longValue());
+                wrapper.transfer(from, to, sun.longValue());
 
         // 签名
         Chain.Transaction signTransaction = wrapper.signTransaction(transfer);
@@ -275,6 +272,37 @@ public class SomeTest extends BaseTest {
         BigDecimal sun = BigDecimal.valueOf(1000000);
         BigDecimal trxBalance = Convert.fromSun(sun, Convert.Unit.TRX);
         log.debug("1000000sun={}trx", trxBalance);
+    }
+
+
+    @Test
+    public void usdtName() {
+        String res = "000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000045553445400000000000000000000000000000000000000000000000000000000";
+        String name_res = res.substring(res.length() - 32).replaceAll("0", "");
+        log.debug("name_res：{}", name_res);
+
+
+        log.debug("name:{}", this.toStringHex("55534454"));
+
+        log.debug("{}", TronConverter.hexToInt("430e1b7"));
+
+    }
+    // 转化十六进制编码为字符串
+    public String toStringHex(String s) {
+        byte[] baKeyword = new byte[s.length() / 2];
+        for (int i = 0; i < baKeyword.length; i++) {
+            try {
+                baKeyword[i] = (byte) (0xff & Integer.parseInt(s.substring(i * 2, i * 2 + 2), 16));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            s = new String(baKeyword, StandardCharsets.UTF_8);//UTF-16le:Not
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        }
+        return s;
     }
 
 }

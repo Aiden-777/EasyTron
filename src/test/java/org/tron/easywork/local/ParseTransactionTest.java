@@ -3,6 +3,7 @@ package org.tron.easywork.local;
 import com.google.protobuf.InvalidProtocolBufferException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
+import org.tron.easywork.BaseTest;
 import org.tron.easywork.exception.FunctionSelectorException;
 import org.tron.easywork.exception.SmartParamDecodeException;
 import org.tron.easywork.handler.transfer.TransferHandler;

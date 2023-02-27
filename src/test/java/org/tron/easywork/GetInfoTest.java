@@ -29,10 +29,10 @@ public class GetInfoTest extends BaseTest {
      */
     @Test
     public void simple_balanceOfTrc20() {
-        // 地址
-        String address = fromAccount.getBase58CheckAddress();
+        // 查询的地址
+        String address = from;
         // 获取合约信息
-        Contract contract = wrapper.getContract(testContractAddress);
+        Contract contract = wrapper.getContract(contractAddress);
         // 构造trc20合约信息
         Trc20Contract trc20Contract = new Trc20Contract(contract, address, wrapper);
         // 合约精度
@@ -51,11 +51,11 @@ public class GetInfoTest extends BaseTest {
     public void balanceOfTrc20() {
         // 地址
         String address = "TP6QorvxAJ4bXg21LterCpGi5oZ2PxybCZ";
-        BigDecimal transferAmount = Trc20ContractUtil.trc20BalanceOf(testContractAddress, address, wrapper);
+        BigDecimal transferAmount = Trc20ContractUtil.trc20BalanceOf(contractAddress, address, wrapper);
         log.debug("Trc20余额:{}", transferAmount);
 
         // 合约信息
-        Trc20ContractInfo trc20ContractInfo = Trc20ContractUtil.readTrc20ContractInfo(testContractAddress, wrapper);
+        Trc20ContractInfo trc20ContractInfo = Trc20ContractUtil.readTrc20ContractInfo(contractAddress, wrapper);
         BigDecimal realAmount = trc20ContractInfo.getRealAmount(transferAmount).stripTrailingZeros();
         log.debug("Trc20真实余额：{}个", realAmount);
     }
@@ -66,7 +66,7 @@ public class GetInfoTest extends BaseTest {
     @Test
     public void simple_balanceOfTrx() {
         // 地址
-        String address = fromAccount.getBase58CheckAddress();
+        String address = from;
         // 获取账户信息
         Response.Account account = wrapper.getAccount(address);
         // 余额
