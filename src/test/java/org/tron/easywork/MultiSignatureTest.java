@@ -2,8 +2,15 @@ package org.tron.easywork;
 
 import com.google.protobuf.ByteString;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Test;
+import org.tron.easywork.enums.TransferType;
 import org.tron.easywork.factory.ApiWrapperFactory;
+import org.tron.easywork.handler.transfer.Trc20TransferHandler;
 import org.tron.easywork.model.AccountInfo;
+import org.tron.easywork.model.ReferenceBlock;
+import org.tron.easywork.model.Transfer;
+import org.tron.easywork.model.Trc20ContractInfo;
+import org.tron.easywork.util.Trc20ContractUtil;
 import org.tron.trident.core.ApiWrapper;
 import org.tron.trident.core.exceptions.IllegalException;
 import org.tron.trident.proto.Chain;
@@ -16,6 +23,7 @@ import org.tron.trident.utils.Convert;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -37,8 +45,8 @@ public class MultiSignatureTest extends BaseTest {
      * <p>
      * 296fc6ae7c8a61c0005b64d38b51c99623fb7475277ab2bbc0439b07f7a86afe
      */
-    // @Test
-/*    public void multiSignature() throws IllegalException {
+    @Test
+    public void multiSignature() throws IllegalException {
         // TKjPqKq77777FPKUdLRMPNUWtU4jNEpUQF   主账号，业务所致此处未用到私钥
         AccountInfo account = new AccountInfo("");
 
@@ -56,14 +64,16 @@ public class MultiSignatureTest extends BaseTest {
         Trc20ContractInfo trc20ContractInfo = Trc20ContractUtil.readTrc20ContractInfo(testContractAddress, wrapper);
         // 系统转账金额
         BigDecimal transferAmount = trc20ContractInfo.getTransferAmount(realAmount);
-        // trc20交易
-        Trc20TransferInfo transferInfo = new Trc20TransferInfo(fromAddress, toAddress, transferAmount, trc20ContractInfo.getAddress());
+        // TRC20转账
+        Transfer transfer = new Transfer(fromAddress, toAddress, transferAmount, TransferType.TRC20);
+        // 合约地址
+        transfer.setContractAddress(trc20ContractInfo.getAddress());
         // 矿工费限制
-        transferInfo.setFeeLimit(Convert.toSun(BigDecimal.valueOf(20), Convert.Unit.TRX).longValue());
+        transfer.setFeeLimit(Convert.toSun(BigDecimal.valueOf(20), Convert.Unit.TRX).longValue());
         // 备注
-        transferInfo.setMemo("备注：" + new Date());
+        transfer.setMemo("备注：" + new Date());
         // 设置权限ID
-        transferInfo.setPermissionId(2);
+        transfer.setPermissionId(2);
 
         // 参考区块
         Chain.Block nowBlock = wrapper.getNowBlock();
@@ -71,7 +81,7 @@ public class MultiSignatureTest extends BaseTest {
         // trc20 转账处理器
         Trc20TransferHandler trc20TransferHandler = new Trc20TransferHandler();
         // 构造本地交易
-        Chain.Transaction transaction = trc20TransferHandler.buildLocalTransfer(transferInfo,referenceBlock);
+        Chain.Transaction transaction = trc20TransferHandler.buildLocalTransfer(transfer, referenceBlock);
         // 账号1签名
         Chain.Transaction signTransaction = wrapper.signTransaction(transaction, account1.getKeyPair());
         // 账号2签名
@@ -79,12 +89,12 @@ public class MultiSignatureTest extends BaseTest {
         // 广播并返回ID
         String tid = wrapper.broadcastTransaction(signTransaction);
         log.debug(tid);
-    }*/
+    }
 
     /**
      * 更新账户权限，目前需要花费100trx
      */
-    // @Test
+    @Test
     public void permissionUpdate() throws IllegalException {
         //TKjPqKq77777FPKUdLRMPNUWtU4jNEpUQF
         String privateKey = "";
@@ -152,7 +162,7 @@ public class MultiSignatureTest extends BaseTest {
     /**
      * 多签 - trident原生 - 非本地构造交易
      */
-    // @Test
+    @Test
     public void multiSignature_trident() throws IllegalException {
         // TKjPqKq77777FPKUdLRMPNUWtU4jNEpUQF   主账号，业务所致此处未用到私钥
         AccountInfo account = new AccountInfo("");
@@ -209,7 +219,7 @@ public class MultiSignatureTest extends BaseTest {
     /**
      * 多签质押演示
      */
-//    @Test
+    @Test
     public void freezeBalance() throws IllegalException {
         // TKjPqKq77777FPKUdLRMPNUWtU4jNEpUQF   主账号(此处仅用到地址)
         AccountInfo account = new AccountInfo("");
