@@ -1,5 +1,6 @@
 package org.tron.easywork.model;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -17,6 +18,7 @@ import java.math.BigInteger;
 @Getter
 @Setter
 @ToString
+@Builder(toBuilder = true)
 public class Transfer {
 
 
@@ -102,15 +104,16 @@ public class Transfer {
     private Long blockHeight;
 
 
-    public Transfer() {
+    public static TransferBuilder trc20TransferBuilder(String from, String to, BigDecimal amount, String contractAddress) {
+        return Transfer.builder().from(from).to(to).transferType(TransferType.TRC20).contractAddress(contractAddress);
     }
 
+    public static TransferBuilder trxTransferBuilder(String from, String to, BigDecimal amount) {
+        return Transfer.builder().from(from).to(to).transferType(TransferType.TRX);
+    }
 
-    public Transfer(String from, String to, BigDecimal amount, TransferType transferType) {
-        this.from = from;
-        this.to = to;
-        this.amount = amount;
-        this.transferType = transferType;
+    public static TransferBuilder trc10TransferBuilder(String from, String to, BigDecimal amount, BigInteger assetName) {
+        return Transfer.builder().from(from).to(to).transferType(TransferType.TRX).assetName(assetName);
     }
 
 }

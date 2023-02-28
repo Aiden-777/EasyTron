@@ -3,7 +3,6 @@ package org.tron.easywork;
 import com.google.protobuf.ByteString;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-import org.tron.easywork.enums.TransferType;
 import org.tron.easywork.factory.ApiWrapperFactory;
 import org.tron.easywork.handler.transfer.Trc20TransferHandler;
 import org.tron.easywork.model.AccountInfo;
@@ -65,15 +64,15 @@ public class MultiSignatureTest extends BaseTest {
         // 系统转账金额
         BigDecimal transferAmount = trc20ContractInfo.getTransferAmount(realAmount);
         // TRC20转账
-        Transfer transfer = new Transfer(fromAddress, to, transferAmount, TransferType.TRC20);
-        // 合约地址
-        transfer.setContractAddress(trc20ContractInfo.getAddress());
-        // 矿工费限制
-        transfer.setFeeLimit(Convert.toSun(BigDecimal.valueOf(20), Convert.Unit.TRX).longValue());
-        // 备注
-        transfer.setMemo("备注：" + new Date());
-        // 设置权限ID
-        transfer.setPermissionId(2);
+        Transfer transfer =
+                Transfer.trc20TransferBuilder(fromAddress, to, transferAmount, trc20ContractInfo.getAddress())
+                        // 矿工费限制
+                        .feeLimit(Convert.toSun(BigDecimal.valueOf(20), Convert.Unit.TRX).longValue())
+                        // 备注
+                        .memo("备注：" + new Date())
+                        // 设置权限ID
+                        .permissionId(2)
+                        .build();
 
         // 参考区块
         Chain.Block nowBlock = wrapper.getNowBlock();

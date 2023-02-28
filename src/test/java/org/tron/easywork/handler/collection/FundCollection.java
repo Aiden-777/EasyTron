@@ -2,7 +2,6 @@ package org.tron.easywork.handler.collection;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.tron.easywork.enums.TransferType;
 import org.tron.easywork.handler.transfer.Trc20TransferHandler;
 import org.tron.easywork.handler.transfer.TrxTransferHandler;
 import org.tron.easywork.model.AccountInfo;
@@ -99,11 +98,11 @@ public class FundCollection {
             try {
                 // 派发Trx矿工费 - 无需单独检查矿工费交易ID，如果失败会直接报错
                 // trx转账信息
-                Transfer handingFeeTransfer = new Transfer(
+                Transfer handingFeeTransfer = Transfer.trxTransferBuilder(
                         fundCollectionConfig.getHandingFeeProviderAddress(),
                         account.getBase58CheckAddress(),
-                        Convert.toSun(fundCollectionConfig.getHandingFeeWithTrx(), Convert.Unit.TRX),
-                        TransferType.TRX);
+                        Convert.toSun(fundCollectionConfig.getHandingFeeWithTrx(), Convert.Unit.TRX)
+                ).build();
                 // 构建交易
                 Chain.Transaction handingFeeTransaction = trxTransferHandler.buildLocalTransfer(handingFeeTransfer, referenceBlock);
                 // 签名
@@ -124,10 +123,10 @@ public class FundCollection {
             Thread.sleep(1000);
 
             // trc20转账信息
-            Transfer transfer = new Transfer(account.getBase58CheckAddress(),
-                    fundCollectionConfig.getTargetAddressOfTrc20(),
-                    balance, TransferType.TRC20);
-            transfer.setContractAddress(fundCollectionConfig.getTrc20ContractInfo().getAddress());
+            Transfer transfer = Transfer.trc20TransferBuilder(account.getBase58CheckAddress(),
+                            fundCollectionConfig.getTargetAddressOfTrc20(),
+                            balance, fundCollectionConfig.getTrc20ContractInfo().getAddress())
+                    .build();
             // 构建交易
             Chain.Transaction transaction = trc20TransferHandler.buildLocalTransfer(transfer, referenceBlock);
             // 签名
@@ -177,8 +176,8 @@ public class FundCollection {
             }
 
             // trx转账信息
-            Transfer incomeTransferInfo = new Transfer(account.getBase58CheckAddress(),
-                    fundCollectionConfig.getTargetAddressOfTrx(), BigDecimal.valueOf(trxBalance), TransferType.TRX);
+            Transfer incomeTransferInfo = Transfer.trxTransferBuilder(account.getBase58CheckAddress(),
+                    fundCollectionConfig.getTargetAddressOfTrx(), BigDecimal.valueOf(trxBalance)).build();
             // 构造trx转账交易
             Chain.Transaction incomeTransfer = trxTransferHandler.buildLocalTransfer(incomeTransferInfo, referenceBlock);
             // 签名

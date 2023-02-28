@@ -1,7 +1,6 @@
 package org.tron.easywork.util;
 
 import com.google.protobuf.ByteString;
-import org.tron.easywork.enums.TransferType;
 import org.tron.easywork.exception.FunctionSelectorException;
 import org.tron.easywork.exception.SmartParamDecodeException;
 import org.tron.easywork.model.Transfer;
@@ -35,7 +34,7 @@ public class TransferUtil {
         String fromAddress = Base58Check.bytesToBase58(fromAddressBs.toByteArray());
         // 转账金额
         long amount = transferContract.getAmount();
-        return new Transfer(fromAddress, toAddress, BigDecimal.valueOf(amount), TransferType.TRX);
+        return Transfer.trxTransferBuilder(fromAddress, toAddress, BigDecimal.valueOf(amount)).build();
     }
 
     /**
@@ -56,9 +55,7 @@ public class TransferUtil {
         // tokenId
         ByteString assetNameBs = transferAssetContract.getAssetName();
         String assetName = assetNameBs.toStringUtf8();
-        Transfer transfer = new Transfer(fromAddress, toAddress, BigDecimal.valueOf(amount), TransferType.TRC10);
-        transfer.setAssetName(new BigInteger(assetName));
-        return transfer;
+        return Transfer.trc10TransferBuilder(fromAddress, toAddress, BigDecimal.valueOf(amount), new BigInteger(assetName)).build();
     }
 
 
@@ -77,10 +74,7 @@ public class TransferUtil {
         // 合约地址
         byte[] contractAddressBs = triggerSmartContract.getContractAddress().toByteArray();
         String contractAddress = Base58Check.bytesToBase58(contractAddressBs);
-        // 交易产生时间 ... 忽略，sdk读取时间 间歇性丢失
-        Transfer transfer = new Transfer(fromAddress, transferFunctionParam.getToAddress()
-                , transferFunctionParam.getAmount(), TransferType.TRC20);
-        transfer.setContractAddress(contractAddress);
-        return transfer;
+        return Transfer.trc20TransferBuilder(fromAddress, transferFunctionParam.getToAddress(),
+                transferFunctionParam.getAmount(), contractAddress).build();
     }
 }

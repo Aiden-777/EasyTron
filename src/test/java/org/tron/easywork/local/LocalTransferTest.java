@@ -77,7 +77,7 @@ public class LocalTransferTest extends BaseTest {
         // 实际金额，单位：sum
         BigDecimal amount = Convert.toSun(realAmount, Convert.Unit.TRX);
         // TRX转账信息
-        Transfer transfer = this.createTrxTransfer(from, to, amount);
+        Transfer transfer = Transfer.trxTransferBuilder(from, to, amount).memo("备注：TRX转账").build();
         // TRX转账处理器
         TrxTransferHandler handler = new TrxTransferHandler();
         // 引用区块

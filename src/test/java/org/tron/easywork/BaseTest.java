@@ -1,7 +1,6 @@
 package org.tron.easywork;
 
 import lombok.extern.slf4j.Slf4j;
-import org.tron.easywork.enums.TransferType;
 import org.tron.easywork.handler.transfer.TransferHandlerContext;
 import org.tron.easywork.handler.transfer.Trc10TransferHandler;
 import org.tron.easywork.handler.transfer.Trc20TransferHandler;
@@ -58,16 +57,6 @@ public class BaseTest {
         return new ReferenceBlock(nowBlock.getBlockHeader());
     }
 
-    /**
-     * 创建TRX转账
-     */
-    protected Transfer createTrxTransfer(String from, String to, BigDecimal amount) {
-        // 创建转账信息
-        Transfer transfer = new Transfer(from, to, amount, TransferType.TRX);
-        // 设置备注
-        transfer.setMemo("备注：TRX转账");
-        return transfer;
-    }
 
     /**
      * 创建TRC20转账
@@ -75,15 +64,7 @@ public class BaseTest {
     protected Transfer createTrc20Transfer(String from, String to, BigDecimal amount) {
         // 手续费限制，单位sum
         long feeLimit = Convert.toSun(BigDecimal.valueOf(50), Convert.Unit.TRX).longValue();
-        // 创建转账信息
-        Transfer transfer = new Transfer(from, to, amount, TransferType.TRC20);
-        // 设置合约地址
-        transfer.setContractAddress(contractAddress);
-        // 设置矿工费
-        transfer.setFeeLimit(feeLimit);
-        // 设置备注
-        transfer.setMemo("备注：TRC20转账");
-        return transfer;
+        return Transfer.trc20TransferBuilder(from, to, amount, contractAddress).feeLimit(feeLimit).memo("备注：TRC20转账").build();
     }
 
     /**
