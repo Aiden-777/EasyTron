@@ -104,14 +104,40 @@ public class Transfer {
     private Long blockHeight;
 
 
+    /**
+     * 创建TRC20转账构建者
+     *
+     * @param from            来源地址/转出地址
+     * @param to              到账地址
+     * @param amount          金额
+     * @param contractAddress 合约地址
+     * @return TRC20转账构建者
+     */
     public static TransferBuilder trc20TransferBuilder(String from, String to, BigDecimal amount, String contractAddress) {
         return Transfer.builder().from(from).to(to).transferType(TransferType.TRC20).contractAddress(contractAddress);
     }
 
+    /**
+     * 创建TRX转账构建者
+     *
+     * @param from   来源地址/转出地址
+     * @param to     到账地址
+     * @param amount 金额
+     * @return TRX转账构建者
+     */
     public static TransferBuilder trxTransferBuilder(String from, String to, BigDecimal amount) {
         return Transfer.builder().from(from).to(to).transferType(TransferType.TRX);
     }
 
+    /**
+     * 创建TRC10转账构建者
+     *
+     * @param from      来源地址/转出地址
+     * @param to        到账地址
+     * @param amount    金额
+     * @param assetName TRC10 资源名称
+     * @return TRC10转账构建者
+     */
     public static TransferBuilder trc10TransferBuilder(String from, String to, BigDecimal amount, BigInteger assetName) {
         return Transfer.builder().from(from).to(to).transferType(TransferType.TRX).assetName(assetName);
     }
