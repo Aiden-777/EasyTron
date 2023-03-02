@@ -114,7 +114,7 @@ public class Transfer {
      * @return TRC20转账构建者
      */
     public static TransferBuilder trc20TransferBuilder(String from, String to, BigDecimal amount, String contractAddress) {
-        return Transfer.builder().from(from).to(to).transferType(TransferType.TRC20).contractAddress(contractAddress);
+        return Transfer.builder().from(from).to(to).amount(amount).transferType(TransferType.TRC20).contractAddress(contractAddress);
     }
 
     /**
@@ -126,7 +126,7 @@ public class Transfer {
      * @return TRX转账构建者
      */
     public static TransferBuilder trxTransferBuilder(String from, String to, BigDecimal amount) {
-        return Transfer.builder().from(from).to(to).transferType(TransferType.TRX);
+        return Transfer.builder().from(from).to(to).amount(amount).transferType(TransferType.TRX);
     }
 
     /**
@@ -139,7 +139,7 @@ public class Transfer {
      * @return TRC10转账构建者
      */
     public static TransferBuilder trc10TransferBuilder(String from, String to, BigDecimal amount, BigInteger assetName) {
-        return Transfer.builder().from(from).to(to).transferType(TransferType.TRX).assetName(assetName);
+        return Transfer.builder().from(from).to(to).amount(amount).transferType(TransferType.TRX).assetName(assetName);
     }
 
 }
