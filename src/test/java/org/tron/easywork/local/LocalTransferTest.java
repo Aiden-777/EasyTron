@@ -73,7 +73,7 @@ public class LocalTransferTest extends BaseTest {
     @Test
     public void transferTrx() throws IllegalException {
         // 真实金额，单位：个
-        BigDecimal realAmount = BigDecimal.valueOf(9);
+        BigDecimal realAmount = BigDecimal.valueOf(10);
         // 实际金额，单位：sum
         BigDecimal amount = Convert.toSun(realAmount, Convert.Unit.TRX);
         // TRX转账信息
@@ -93,7 +93,7 @@ public class LocalTransferTest extends BaseTest {
     @Test
     public void transferTrc20() throws IllegalException {
         // 真实金额，单位：个
-        BigDecimal realAmount = BigDecimal.valueOf(100);
+        BigDecimal realAmount = BigDecimal.valueOf(10);
         // TRC20合约信息
         Trc20ContractInfo trc20ContractInfo = Trc20ContractUtil.readTrc20ContractInfo(contractAddress, wrapper);
         // 实际金额，单位：合约最小单位
@@ -222,7 +222,7 @@ public class LocalTransferTest extends BaseTest {
                         // 备注
                         .setData(ByteString.copyFromUtf8("备注一份"))
                         // trc20 手续费限制
-                        .setFeeLimit(Convert.toSun(BigDecimal.valueOf(15), Convert.Unit.TRX).longValue())
+                        .setFeeLimit(Convert.toSun(BigDecimal.valueOf(50), Convert.Unit.TRX).longValue())
         );
         Chain.Transaction transaction = transactionBuilder.build();
         this.sendTransaction(transaction);
