@@ -38,7 +38,8 @@ public class TransferTest extends BaseTest {
                 // 精度
                 trc20Contract.decimals().intValue(),
                 "备注",
-                Convert.toSun("10", Convert.Unit.TRX).longValue()
+                // feeLimit
+                Convert.toSun("50", Convert.Unit.TRX).longValue()
         );
         log.debug(tid);
     }
