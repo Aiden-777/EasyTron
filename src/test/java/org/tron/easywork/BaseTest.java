@@ -25,7 +25,7 @@ public class BaseTest {
     /**
      * 私钥
      */
-    protected String key = "320b8b4de76641ad2b81ea72de6419a39b143b8414c710a0fbeb3a5cc12a7d46";
+    protected String key = "";
     /**
      * trident API 包装器
      */
