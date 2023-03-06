@@ -15,6 +15,7 @@ import org.tron.trident.core.ApiWrapper;
 import org.tron.trident.core.Constant;
 import org.tron.trident.core.exceptions.IllegalException;
 import org.tron.trident.proto.Chain;
+import org.tron.trident.proto.Contract;
 
 import java.util.List;
 
@@ -70,6 +71,7 @@ public class ReadBlockTest extends BaseTest {
                     // 如果是 触发智能合约 操作
                     if (contractType == Chain.Transaction.Contract.ContractType.TriggerSmartContract) {
                         try {
+                            log.debug("这是智能合约交易");
                             // 解码
                             org.tron.trident.proto.Contract.TriggerSmartContract triggerSmartContract =
                                     parameter.unpack(org.tron.trident.proto.Contract.TriggerSmartContract.class);
@@ -92,7 +94,13 @@ public class ReadBlockTest extends BaseTest {
                     }
                     // 如果是trx
                     else if (contractType == Chain.Transaction.Contract.ContractType.TransferContract) {
-                        log.debug("TRX");
+                        try {
+                            log.debug("这是TRX交易");
+                            Contract.TransferContract unpack = parameter.unpack(Contract.TransferContract.class);
+                            Transfer transferInfo = TransferUtil.getTransferInfo(unpack);
+                        } catch (InvalidProtocolBufferException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 }
         );
