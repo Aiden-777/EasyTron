@@ -38,13 +38,24 @@ public class TransactionUtil {
     }
 
     /**
+     * 获取交易中的第一个合约
+     *
+     * @param transaction 交易
+     * @return 合约
+     */
+    public static Chain.Transaction.Contract getFirstContract(Chain.Transaction transaction) {
+        return transaction.getRawData().getContract(0);
+    }
+
+
+    /**
      * 获取交易中第一个合约的类型
      *
      * @param transaction 交易
      * @return 合约类型
      */
     public static Chain.Transaction.Contract.ContractType getFirstContractType(Chain.Transaction transaction) {
-        return transaction.getRawData().getContract(0).getType();
+        return getFirstContract(transaction).getType();
     }
 
     /**
@@ -54,7 +65,7 @@ public class TransactionUtil {
      * @return 权限ID
      */
     public static int getFirstPermissionId(Chain.Transaction transaction) {
-        return transaction.getRawData().getContract(0).getPermissionId();
+        return getFirstContract(transaction).getPermissionId();
     }
 
 
