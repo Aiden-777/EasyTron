@@ -37,17 +37,17 @@
     <dependency>
         <groupId>org.tron.trident</groupId>
         <artifactId>abi</artifactId>
-        <version>0.3.0</version>
+        <version>0.4.0</version>
     </dependency>
     <dependency>
         <groupId>org.tron.trident</groupId>
         <artifactId>utils</artifactId>
-        <version>0.3.0</version>
+        <version>0.4.0</version>
     </dependency>
     <dependency>
         <groupId>org.tron.trident</groupId>
         <artifactId>core</artifactId>
-        <version>0.3.0</version>
+        <version>0.4.0</version>
     </dependency>
 
     <dependency>
