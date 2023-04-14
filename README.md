@@ -25,13 +25,11 @@
         <groupId>io.grpc</groupId>
         <artifactId>grpc-all</artifactId>
         <version>1.51.0</version>
-        <scope>provided</scope>
     </dependency>
     <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcprov-jdk18on</artifactId>
         <version>1.72</version>
-        <scope>provided</scope>
     </dependency>
 
     <dependency>
