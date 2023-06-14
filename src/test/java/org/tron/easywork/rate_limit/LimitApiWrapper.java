@@ -114,7 +114,7 @@ public class LimitApiWrapper {
 
 
     public static LimitApiWrapper ofShasta(String hexPrivateKey, ClientInterceptor clientInterceptor) {
-        return new LimitApiWrapper(Constant.TRONGRID_SHASTA, Constant.TRONGRID_SHASTA_SOLIDITY, hexPrivateKey, clientInterceptor);
+        return new LimitApiWrapper(Constant.TRONGRID_SHASTA, Constant.TRONGRID_SHASTA_SOLIDITY, hexPrivateKey, clientInterceptor);
     }
 
 
@@ -303,7 +303,7 @@ public class LimitApiWrapper {
     /**
      * broadcast a transaction with the binding account.
      *
-     * @param Transaction a signed transaction ready to be broadcasted
+     * @param txn a signed transaction ready to be broadcasted
      * @return a TransactionReturn object contains the broadcasting result
      * @throws RuntimeException if broadcastin fails
      */
