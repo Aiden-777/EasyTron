@@ -24,34 +24,42 @@
     <dependency>
         <groupId>io.grpc</groupId>
         <artifactId>grpc-all</artifactId>
-        <version>1.51.0</version>
+        <version>1.55.1</version>
+        <scope>provided</scope>
+        <exclusions>
+            <exclusion>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+            </exclusion>
+        </exclusions>
     </dependency>
+
     <dependency>
-        <groupId>org.bouncycastle</groupId>
-        <artifactId>bcprov-jdk18on</artifactId>
-        <version>1.72</version>
+        <groupId>commons-codec</groupId>
+        <artifactId>commons-codec</artifactId>
+        <version>1.15</version>
     </dependency>
 
     <dependency>
         <groupId>org.tron.trident</groupId>
         <artifactId>abi</artifactId>
-        <version>0.4.0</version>
+        <version>0.6.0</version>
     </dependency>
     <dependency>
         <groupId>org.tron.trident</groupId>
         <artifactId>utils</artifactId>
-        <version>0.4.0</version>
+        <version>0.6.0</version>
     </dependency>
     <dependency>
         <groupId>org.tron.trident</groupId>
         <artifactId>core</artifactId>
-        <version>0.4.0</version>
+        <version>0.6.0</version>
     </dependency>
 
     <dependency>
         <groupId>org.tron.easywork</groupId>
         <artifactId>core</artifactId>
-        <version>2.1</version>
+        <version>2.2</version>
     </dependency>
 
 </dependencies>
