@@ -1,7 +1,8 @@
 package org.tron.easywork.rate_limit;
 
 import com.google.protobuf.ByteString;
-import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.Message;
+import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Metadata;
@@ -10,6 +11,7 @@ import org.bouncycastle.jcajce.provider.digest.SHA256;
 import org.bouncycastle.util.encoders.Hex;
 import org.tron.trident.abi.FunctionEncoder;
 import org.tron.trident.abi.datatypes.Function;
+import org.tron.trident.api.GrpcAPI;
 import org.tron.trident.api.GrpcAPI.*;
 import org.tron.trident.api.WalletGrpc;
 import org.tron.trident.api.WalletSolidityGrpc;
@@ -19,6 +21,9 @@ import org.tron.trident.core.contract.ContractFunction;
 import org.tron.trident.core.exceptions.IllegalException;
 import org.tron.trident.core.key.KeyPair;
 import org.tron.trident.core.transaction.TransactionBuilder;
+import org.tron.trident.core.transaction.TransactionCapsule;
+import org.tron.trident.core.utils.Sha256Hash;
+import org.tron.trident.core.utils.Utils;
 import org.tron.trident.proto.Chain.Block;
 import org.tron.trident.proto.Chain.Transaction;
 import org.tron.trident.proto.Common.SmartContract;
@@ -29,8 +34,6 @@ import org.tron.trident.utils.Base58Check;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
-
-import static org.tron.trident.proto.Response.TransactionReturn.response_code.SUCCESS;
 
 /**
  * A {@code ApiWrapper} object is the entry point for calling the functions.
@@ -46,17 +49,16 @@ import static org.tron.trident.proto.Response.TransactionReturn.response_code.SU
  */
 
 public class LimitApiWrapper {
+    public static final long TRANSACTION_DEFAULT_EXPIRATION_TIME = 60 * 1_000L; //60 seconds
+
     public final WalletGrpc.WalletBlockingStub blockingStub;
     public final WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity;
     public final KeyPair keyPair;
     public final ManagedChannel channel;
     public final ManagedChannel channelSolidity;
-    public static final GrpcRateLimitInterceptor grpcRateLimitInterceptor = new GrpcRateLimitInterceptor(1, 1);
 
     public LimitApiWrapper(String grpcEndpoint, String grpcEndpointSolidity, String hexPrivateKey) {
-        channel = ManagedChannelBuilder.forTarget(grpcEndpoint)
-                .intercept(grpcRateLimitInterceptor)
-                .usePlaintext().build();
+        channel = ManagedChannelBuilder.forTarget(grpcEndpoint).usePlaintext().build();
         channelSolidity = ManagedChannelBuilder.forTarget(grpcEndpointSolidity).usePlaintext().build();
         blockingStub = WalletGrpc.newBlockingStub(channel);
         blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
@@ -64,8 +66,33 @@ public class LimitApiWrapper {
     }
 
     public LimitApiWrapper(String grpcEndpoint, String grpcEndpointSolidity, String hexPrivateKey, String apiKey) {
+        channel = ManagedChannelBuilder.forTarget(grpcEndpoint).usePlaintext().build();
+        channelSolidity = ManagedChannelBuilder.forTarget(grpcEndpointSolidity).usePlaintext().build();
+
+        //attach api key
+        Metadata header = new Metadata();
+        Metadata.Key<String> key = Metadata.Key.of("TRON-PRO-API-KEY", Metadata.ASCII_STRING_MARSHALLER);
+        header.put(key, apiKey);
+
+        blockingStub = (WalletGrpc.WalletBlockingStub) MetadataUtils.attachHeaders(WalletGrpc.newBlockingStub(channel), header);
+        blockingStubSolidity = (WalletSolidityGrpc.WalletSolidityBlockingStub) MetadataUtils.attachHeaders(WalletSolidityGrpc.newBlockingStub(channelSolidity), header);
+
+        keyPair = new KeyPair(hexPrivateKey);
+    }
+
+    public LimitApiWrapper(String grpcEndpoint, String grpcEndpointSolidity, String hexPrivateKey, ClientInterceptor clientInterceptor) {
         channel = ManagedChannelBuilder.forTarget(grpcEndpoint)
-                .intercept(grpcRateLimitInterceptor)
+                .intercept(clientInterceptor)
+                .usePlaintext().build();
+        channelSolidity = ManagedChannelBuilder.forTarget(grpcEndpointSolidity).usePlaintext().build();
+        blockingStub = WalletGrpc.newBlockingStub(channel);
+        blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
+        keyPair = new KeyPair(hexPrivateKey);
+    }
+
+    public LimitApiWrapper(String grpcEndpoint, String grpcEndpointSolidity, String hexPrivateKey, String apiKey, ClientInterceptor clientInterceptor) {
+        channel = ManagedChannelBuilder.forTarget(grpcEndpoint)
+                .intercept(clientInterceptor)
                 .usePlaintext().build();
         channelSolidity = ManagedChannelBuilder.forTarget(grpcEndpointSolidity).usePlaintext().build();
 
@@ -85,56 +112,11 @@ public class LimitApiWrapper {
         channelSolidity.shutdown();
     }
 
-    /*public ApiWrapper(Channel channel, String hexPrivateKey) {
-        blockingStub = WalletGrpc.newBlockingStub(channel);
-        blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channel);
-        keyPair = SECP256K1.KeyPair.create(SECP256K1.PrivateKey.create(Bytes32.fromHexString(hexPrivateKey)));
-    }*/
 
-    /**
-     * The constuctor for main net. Use TronGrid as default
-     *
-     * @param hexPrivateKey the binding private key. Operations require private key will all use this unless the private key is specified elsewhere.
-     * @param apiKey        this function works with TronGrid, an API key is required.
-     * @return a ApiWrapper object
-     */
-    public static LimitApiWrapper ofMainnet(String hexPrivateKey, String apiKey) {
-        return new LimitApiWrapper(Constant.TRONGRID_MAIN_NET, Constant.TRONGRID_MAIN_NET_SOLIDITY, hexPrivateKey, apiKey);
+    public static LimitApiWrapper ofShasta(String hexPrivateKey, ClientInterceptor clientInterceptor) {
+        return new LimitApiWrapper(Constant.TRONGRID_SHASTA, Constant.TRONGRID_SHASTA_SOLIDITY, hexPrivateKey, clientInterceptor);
     }
 
-    /**
-     * The constuctor for main net.
-     *
-     * @param hexPrivateKey the binding private key. Operations require private key will all use this unless the private key is specified elsewhere.
-     * @param apiKey        this function works with TronGrid, an API key is required.
-     * @return a ApiWrapper object
-     * @deprecated This method will only be available before TronGrid prohibits the use without API key
-     */
-    @Deprecated
-    public static LimitApiWrapper ofMainnet(String hexPrivateKey) {
-        return new LimitApiWrapper(Constant.TRONGRID_MAIN_NET, Constant.TRONGRID_MAIN_NET_SOLIDITY, hexPrivateKey);
-    }
-
-    /**
-     * The constuctor for Shasta test net. Use TronGrid as default.
-     *
-     * @param hexPrivateKey the binding private key. Operations require private key will all use this unless the private key is specified elsewhere.
-     * @param apiKey        this function works with TronGrid, an API key is required.
-     * @return a ApiWrapper object
-     */
-    public static LimitApiWrapper ofShasta(String hexPrivateKey) {
-        return new LimitApiWrapper(Constant.TRONGRID_SHASTA, Constant.TRONGRID_SHASTA_SOLIDITY, hexPrivateKey);
-    }
-
-    /**
-     * The constuctor for Nile test net.
-     *
-     * @param hexPrivateKey the binding private key. Operations require private key will all use this unless the private key is specified elsewhere.
-     * @return a ApiWrapper object
-     */
-    public static LimitApiWrapper ofNile(String hexPrivateKey) {
-        return new LimitApiWrapper(Constant.FULLNODE_NILE, Constant.FULLNODE_NILE_SOLIDITY, hexPrivateKey);
-    }
 
     /**
      * Generate random address
@@ -156,11 +138,14 @@ public class LimitApiWrapper {
         byte[] raw;
         if (address.startsWith("T")) {
             raw = Base58Check.base58ToBytes(address);
-        } else if (address.startsWith("41")) {
+        }
+        else if (address.startsWith("41")) {
             raw = Hex.decode(address);
-        } else if (address.startsWith("0x")) {
+        }
+        else if (address.startsWith("0x")) {
             raw = Hex.decode(address.substring(2));
-        } else {
+        }
+        else {
             try {
                 raw = Hex.decode(address);
             } catch (Exception e) {
@@ -215,6 +200,67 @@ public class LimitApiWrapper {
         return signTransaction(txn, keyPair);
     }
 
+
+    private TransactionCapsule createTransactionCapsuleWithoutValidate(
+            Message message, Transaction.Contract.ContractType contractType) throws Exception {
+        TransactionCapsule trx = new TransactionCapsule(message, contractType);
+
+        if (contractType == Transaction.Contract.ContractType.CreateSmartContract) {
+            trx.setTransactionCreate(true);
+            org.tron.trident.proto.Contract.CreateSmartContract contract = Utils.getSmartContractFromTransaction(trx.getTransaction());
+            long percent = contract.getNewContract().getConsumeUserResourcePercent();
+            if (percent < 0 || percent > 100) {
+                throw new Exception("percent must be >= 0 and <= 100");
+            }
+        }
+        //build transaction
+        trx.setTransactionCreate(false);
+        BlockExtention solidHeadBlock = blockingStubSolidity.getNowBlock2(EmptyMessage.getDefaultInstance());
+        //get solid head blockId
+        byte[] blockHash = Utils.getBlockId(solidHeadBlock).getBytes();
+        trx.setReference(solidHeadBlock.getBlockHeader().getRawData().getNumber(), blockHash);
+
+        //get expiration time from head block timestamp
+        BlockExtention headBlock = blockingStub.getNowBlock2(EmptyMessage.getDefaultInstance());
+        long expiration = headBlock.getBlockHeader().getRawData().getTimestamp() + TRANSACTION_DEFAULT_EXPIRATION_TIME;
+        trx.setExpiration(expiration);
+        trx.setTimestamp();
+
+        return trx;
+    }
+
+    /**
+     * build Transaction Extention in local.
+     *
+     * @param contractType transaction type.
+     * @param request      transaction message object.
+     */
+    public TransactionExtention createTransactionExtention(Message request, Transaction.Contract.ContractType contractType) throws IllegalException {
+        TransactionExtention.Builder trxExtBuilder = TransactionExtention.newBuilder();
+
+        try {
+            TransactionCapsule trx = createTransactionCapsuleWithoutValidate(request, contractType);
+            trxExtBuilder.setTransaction(trx.getTransaction());
+            trxExtBuilder.setTxid(ByteString.copyFrom(Sha256Hash.hash(true, trx.getTransaction().getRawData().toByteArray())));
+        } catch (Exception e) {
+            throw new IllegalException("createTransactionExtention error," + e.getMessage());
+        }
+
+        return trxExtBuilder.build();
+    }
+
+
+    /**
+     * Estimate the bandwidth consumption of the transaction.
+     * Please note that bandwidth estimations are based on signed transactions.
+     *
+     * @param txn the transaction to be estimated.
+     */
+    public long estimateBandwidth(Transaction txn) {
+        long byteSize = txn.toBuilder().clearRet().build().getSerializedSize() + 64;
+        return byteSize;
+    }
+
     /**
      * Resolve the result code from TransactionReturn objects.
      *
@@ -266,7 +312,8 @@ public class LimitApiWrapper {
         if (!ret.getResult()) {
             String message = resolveResultCode(ret.getCodeValue()) + ", " + ret.getMessage();
             throw new RuntimeException(message);
-        } else {
+        }
+        else {
             byte[] txid = calculateTransactionHash(txn);
             return ByteString.copyFrom(Hex.encode(txid)).toStringUtf8();
         }
@@ -291,11 +338,7 @@ public class LimitApiWrapper {
                 .setToAddress(rawTo)
                 .setAmount(amount)
                 .build();
-        TransactionExtention txnExt = blockingStub.createTransaction2(req);
-
-        if (SUCCESS != txnExt.getResult().getCode()) {
-            throw new IllegalException(txnExt.getResult().getMessage().toStringUtf8());
-        }
+        TransactionExtention txnExt = createTransactionExtention(req, Transaction.Contract.ContractType.TransferContract);
 
         return txnExt;
     }
@@ -323,11 +366,7 @@ public class LimitApiWrapper {
                 .setAmount(amount)
                 .build();
 
-        TransactionExtention txnExt = blockingStub.transferAsset2(req);
-
-        if (SUCCESS != txnExt.getResult().getCode()) {
-            throw new IllegalException(txnExt.getResult().getMessage().toStringUtf8());
-        }
+        TransactionExtention txnExt = createTransactionExtention(req, Transaction.Contract.ContractType.TransferAssetContract);
 
         return txnExt;
     }
@@ -369,14 +408,34 @@ public class LimitApiWrapper {
                         .setResourceValue(resourceCode)
                         .setReceiverAddress(rawReceiveFrom)
                         .build();
-        TransactionExtention txnExt = blockingStub.freezeBalance2(freezeBalanceContract);
-
-        if (SUCCESS != txnExt.getResult().getCode()) {
-            throw new IllegalException(txnExt.getResult().getMessage().toStringUtf8());
-        }
+        TransactionExtention txnExt = createTransactionExtention(freezeBalanceContract, Transaction.Contract.ContractType.FreezeBalanceContract);
 
         return txnExt;
     }
+
+    /**
+     * Stake2.0 API
+     * Stake an amount of TRX to obtain bandwidth or energy, and obtain equivalent TRON Power(TP) according to the staked amount
+     *
+     * @param ownerAddress  owner address
+     * @param frozenBalance TRX stake amount, the unit is sun
+     * @param resourceCode  resource type, can be 0("BANDWIDTH") or 1("ENERGY")
+     * @return TransactionExtention
+     * @throws IllegalException if fail to freeze balance
+     */
+    public TransactionExtention freezeBalanceV2(String ownerAddress, long frozenBalance, int resourceCode) throws IllegalException {
+        ByteString rawOwner = parseAddress(ownerAddress);
+        FreezeBalanceV2Contract freezeBalanceContract =
+                FreezeBalanceV2Contract.newBuilder()
+                        .setOwnerAddress(rawOwner)
+                        .setFrozenBalance(frozenBalance)
+                        .setResourceValue(resourceCode)
+                        .build();
+        TransactionExtention txnExt = createTransactionExtention(freezeBalanceContract, Transaction.Contract.ContractType.FreezeBalanceV2Contract);
+
+        return txnExt;
+    }
+
 
     /**
      * Unfreeze balance to get TRX back
@@ -409,14 +468,206 @@ public class LimitApiWrapper {
                         .setReceiverAddress(parseAddress(receiveAddress))
                         .build();
 
-        TransactionExtention txnExt = blockingStub.unfreezeBalance2(unfreeze);
-
-        if (SUCCESS != txnExt.getResult().getCode()) {
-            throw new IllegalException(txnExt.getResult().getMessage().toStringUtf8());
-        }
+        TransactionExtention txnExt = createTransactionExtention(unfreeze, Transaction.Contract.ContractType.UnfreezeBalanceContract);
 
         return txnExt;
     }
+
+    /**
+     * Stake2.0 API
+     * Unstake some TRX, release the corresponding amount of bandwidth or energy, and voting rights (TP)
+     *
+     * @param ownerAddress    owner address
+     * @param unfreezeBalance the amount of TRX to unstake, in sun
+     * @param resourceCode    Resource type, can be 0("BANDWIDTH") or 1("ENERGY")
+     * @return TransactionExtention
+     * @throws IllegalException if fail to unfreeze balance
+     */
+    public TransactionExtention unfreezeBalanceV2(String ownerAddress, long unfreezeBalance, int resourceCode) throws IllegalException {
+
+        UnfreezeBalanceV2Contract unfreeze =
+                UnfreezeBalanceV2Contract.newBuilder()
+                        .setOwnerAddress(parseAddress(ownerAddress))
+                        .setResourceValue(resourceCode)
+                        .setUnfreezeBalance(unfreezeBalance)
+                        .build();
+
+        TransactionExtention txnExt = createTransactionExtention(unfreeze, Transaction.Contract.ContractType.UnfreezeBalanceV2Contract);
+
+        return txnExt;
+    }
+
+
+    /**
+     * Stake2.0 API
+     * Delegate bandwidth or energy resources to other accounts
+     *
+     * @param ownerAddress    owner address
+     * @param balance         Amount of TRX staked for resources to be delegated, unit is sun
+     * @param resourceCode    Resource type, can be 0("BANDWIDTH") or 1("ENERGY")
+     * @param receiverAddress Resource receiver address
+     * @param lock            Whether it is locked, if it is set to true,
+     *                        the delegated resources cannot be undelegated within 3 days.
+     *                        When the lock time is not over, if the owner delegates the same type of resources using the lock to the same address,
+     *                        the lock time will be reset to 3 days
+     * @return TransactionExtention
+     * @throws IllegalException if fail to delegate resource
+     */
+    public TransactionExtention delegateResource(String ownerAddress, long balance, int resourceCode, String receiverAddress, boolean lock) throws IllegalException {
+        ByteString rawOwner = parseAddress(ownerAddress);
+        ByteString rawReciever = parseAddress(receiverAddress);
+        DelegateResourceContract delegateResourceContract =
+                DelegateResourceContract.newBuilder()
+                        .setOwnerAddress(rawOwner)
+                        .setBalance(balance)
+                        .setReceiverAddress(rawReciever)
+                        .setLock(lock)
+                        .setResourceValue(resourceCode)
+                        .build();
+        TransactionExtention txnExt = createTransactionExtention(delegateResourceContract, Transaction.Contract.ContractType.DelegateResourceContract);
+
+        return txnExt;
+    }
+
+    /**
+     * Stake2.0 API
+     * unDelegate resource
+     *
+     * @param ownerAddress    owner address
+     * @param balance         Amount of TRX staked for resources to be delegated, unit is sun
+     * @param resourceCode    Resource type, can be 0("BANDWIDTH") or 1("ENERGY")
+     * @param receiverAddress Resource receiver address
+     * @return TransactionExtention
+     * @throws IllegalException if fail to undelegate resource
+     */
+    public TransactionExtention undelegateResource(String ownerAddress, long balance, int resourceCode, String receiverAddress) throws IllegalException {
+        ByteString rawOwner = parseAddress(ownerAddress);
+        ByteString rawReciever = parseAddress(receiverAddress);
+        UnDelegateResourceContract unDelegateResourceContract =
+                UnDelegateResourceContract.newBuilder()
+                        .setOwnerAddress(rawOwner)
+                        .setBalance(balance)
+                        .setReceiverAddress(rawReciever)
+                        .setResourceValue(resourceCode)
+                        .build();
+        TransactionExtention txnExt = createTransactionExtention(unDelegateResourceContract, Transaction.Contract.ContractType.UnDelegateResourceContract);
+
+        return txnExt;
+    }
+
+
+    /**
+     * Stake2.0 API
+     * withdraw unfrozen balance
+     *
+     * @param ownerAddress owner address
+     * @return TransactionExtention
+     * @throws IllegalException if fail to withdraw
+     */
+    public TransactionExtention withdrawExpireUnfreeze(String ownerAddress) throws IllegalException {
+        ByteString rawOwner = parseAddress(ownerAddress);
+        WithdrawExpireUnfreezeContract withdrawExpireUnfreezeContract =
+                WithdrawExpireUnfreezeContract.newBuilder()
+                        .setOwnerAddress(rawOwner)
+                        .build();
+        TransactionExtention txnExt = createTransactionExtention(withdrawExpireUnfreezeContract, Transaction.Contract.ContractType.WithdrawExpireUnfreezeContract);
+
+        return txnExt;
+    }
+
+    /**
+     * Stake2.0 API
+     * query remaining times of executing unstake operation
+     *
+     * @param ownerAddress owner address
+     */
+    public long getAvailableUnfreezeCount(String ownerAddress) {
+        ByteString rawOwner = parseAddress(ownerAddress);
+        GrpcAPI.GetAvailableUnfreezeCountRequestMessage getAvailableUnfreezeCountRequestMessage =
+                GrpcAPI.GetAvailableUnfreezeCountRequestMessage.newBuilder()
+                        .setOwnerAddress(rawOwner)
+                        .build();
+        GrpcAPI.GetAvailableUnfreezeCountResponseMessage responseMessage = blockingStub.getAvailableUnfreezeCount(getAvailableUnfreezeCountRequestMessage);
+
+        return responseMessage.getCount();
+    }
+
+    /**
+     * Stake2.0 API
+     * query the withdrawable balance at the specified timestamp
+     *
+     * @param ownerAddress owner address
+     */
+    public long getCanWithdrawUnfreezeAmount(String ownerAddress) {
+        ByteString rawOwner = parseAddress(ownerAddress);
+        GrpcAPI.CanWithdrawUnfreezeAmountRequestMessage getAvailableUnfreezeCountRequestMessage =
+                GrpcAPI.CanWithdrawUnfreezeAmountRequestMessage.newBuilder()
+                        .setOwnerAddress(rawOwner)
+                        .build();
+        GrpcAPI.CanWithdrawUnfreezeAmountResponseMessage responseMessage = blockingStub.getCanWithdrawUnfreezeAmount(getAvailableUnfreezeCountRequestMessage);
+
+        return responseMessage.getAmount();
+    }
+
+    /**
+     * Stake2.0 API
+     * query the amount of delegatable resources share of the specified resource type for an address, unit is sun.
+     *
+     * @param ownerAddress owner address
+     * @param type         resource type, 0 is bandwidth, 1 is energy
+     */
+    public long getCanDelegatedMaxSize(String ownerAddress, int type) {
+        ByteString rawFrom = parseAddress(ownerAddress);
+        GrpcAPI.CanDelegatedMaxSizeRequestMessage getAvailableUnfreezeCountRequestMessage =
+                GrpcAPI.CanDelegatedMaxSizeRequestMessage.newBuilder()
+                        .setOwnerAddress(rawFrom)
+                        .setType(type)
+                        .build();
+        GrpcAPI.CanDelegatedMaxSizeResponseMessage responseMessage = blockingStub.getCanDelegatedMaxSize(getAvailableUnfreezeCountRequestMessage);
+
+        return responseMessage.getMaxSize();
+    }
+
+    /**
+     * Stake2.0 API
+     * query the detail of resource share delegated from fromAddress to toAddress
+     *
+     * @param fromAddress from address
+     * @param toAddress   to address
+     * @return DelegatedResourceList
+     */
+    public DelegatedResourceList getDelegatedResourceV2(String fromAddress, String toAddress) {
+        ByteString rawFrom = parseAddress(fromAddress);
+        ByteString rawTo = parseAddress(toAddress);
+        DelegatedResourceMessage delegatedResourceMessage =
+                DelegatedResourceMessage.newBuilder()
+                        .setFromAddress(rawFrom)
+                        .setToAddress(rawTo)
+                        .build();
+        DelegatedResourceList responseMessage = blockingStub.getDelegatedResourceV2(delegatedResourceMessage);
+
+        return responseMessage;
+    }
+
+
+    /**
+     * Stake2.0 API
+     * query the resource delegation index by an account.
+     *
+     * @param address address
+     * @return DelegatedResourceAccountIndex
+     * @throws IllegalException if fail to freeze balance
+     */
+    public DelegatedResourceAccountIndex getDelegatedResourceAccountIndexV2(String address) throws IllegalException {
+        ByteString rawAddress = parseAddress(address);
+        BytesMessage request = BytesMessage.newBuilder()
+                .setValue(rawAddress)
+                .build();
+        DelegatedResourceAccountIndex responseMessage = blockingStub.getDelegatedResourceAccountIndexV2(request);
+
+        return responseMessage;
+    }
+
 
     /**
      * Vote for witnesses
@@ -429,11 +680,7 @@ public class LimitApiWrapper {
     public TransactionExtention voteWitness(String ownerAddress, HashMap<String, String> votes) throws IllegalException {
         ByteString rawFrom = parseAddress(ownerAddress);
         VoteWitnessContract voteWitnessContract = createVoteWitnessContract(rawFrom, votes);
-        TransactionExtention txnExt = blockingStub.voteWitnessAccount2(voteWitnessContract);
-
-        if (SUCCESS != txnExt.getResult().getCode()) {
-            throw new IllegalException(txnExt.getResult().getMessage().toStringUtf8());
-        }
+        TransactionExtention txnExt = createTransactionExtention(voteWitnessContract, Transaction.Contract.ContractType.VoteWitnessContract);
 
         return txnExt;
     }
@@ -453,11 +700,7 @@ public class LimitApiWrapper {
         AccountCreateContract contract = createAccountCreateContract(bsOwnerAddress,
                 bsAccountAddress);
 
-        TransactionExtention transactionExtention = blockingStub.createAccount2(contract);
-
-        if (SUCCESS != transactionExtention.getResult().getCode()) {
-            throw new IllegalException(transactionExtention.getResult().getMessage().toStringUtf8());
-        }
+        TransactionExtention transactionExtention = createTransactionExtention(contract, Transaction.Contract.ContractType.AccountCreateContract);
 
         return transactionExtention;
     }
@@ -479,11 +722,7 @@ public class LimitApiWrapper {
         AccountUpdateContract contract = createAccountUpdateContract(bsAccountName,
                 bsAddress);
 
-        TransactionExtention transactionExtention = blockingStub.updateAccount2(contract);
-
-        if (SUCCESS != transactionExtention.getResult().getCode()) {
-            throw new IllegalException(transactionExtention.getResult().getMessage().toStringUtf8());
-        }
+        TransactionExtention transactionExtention = createTransactionExtention(contract, Transaction.Contract.ContractType.AccountUpdateContract);
 
         return transactionExtention;
     }
@@ -507,13 +746,13 @@ public class LimitApiWrapper {
      * Returns the Block Object corresponding to the 'Block Height' specified (number of blocks preceding it)
      *
      * @param blockNum The block height
-     * @return Block
+     * @return BlockExtention block details
      * @throws IllegalException if the parameters are not correct
      */
-    public Block getBlockByNum(long blockNum) throws IllegalException {
+    public BlockExtention getBlockByNum(long blockNum) throws IllegalException {
         NumberMessage.Builder builder = NumberMessage.newBuilder();
         builder.setNum(blockNum);
-        Block block = blockingStub.getBlockByNum(builder.build());
+        BlockExtention block = blockingStub.getBlockByNum2(builder.build());
 
         if (!block.hasBlockHeader()) {
             throw new IllegalException();
@@ -713,9 +952,21 @@ public class LimitApiWrapper {
 
         SetAccountIdContract contract = createSetAccountIdContract(bsId, bsAddress);
 
-        Transaction transaction = blockingStub.setAccountId(contract);
+        Transaction transaction = createTransactionExtention(contract, Transaction.Contract.ContractType.SetAccountIdContract).getTransaction();
 
         return transaction;
+    }
+
+    //use this method instead of setAccountId
+    public TransactionExtention setAccountId2(String id, String address) throws IllegalException {
+        ByteString bsId = ByteString.copyFrom(id.getBytes());
+        ByteString bsAddress = parseAddress(address);
+
+        SetAccountIdContract contract = createSetAccountIdContract(bsId, bsAddress);
+
+        TransactionExtention extention = createTransactionExtention(contract, Transaction.Contract.ContractType.SetAccountIdContract);
+
+        return extention;
     }
 
     /**
@@ -887,10 +1138,8 @@ public class LimitApiWrapper {
                 .setAmount(amount)
                 .build();
 
-        TransactionExtention transactionExtention = blockingStub.participateAssetIssue2(builder);
-        if (SUCCESS != transactionExtention.getResult().getCode()) {
-            throw new IllegalException(transactionExtention.getResult().getMessage().toStringUtf8());
-        }
+        TransactionExtention transactionExtention = createTransactionExtention(builder, Transaction.Contract.ContractType.ParticipateAssetIssueContract);
+
         return transactionExtention;
     }
 
@@ -1011,11 +1260,8 @@ public class LimitApiWrapper {
             builder.addFrozenSupply(frozenBuilder.build());
         }
 
-        TransactionExtention transactionExtention = blockingStub.createAssetIssue2(builder.build());
+        TransactionExtention transactionExtention = createTransactionExtention(builder.build(), Transaction.Contract.ContractType.AssetIssueContract);
 
-        if (SUCCESS != transactionExtention.getResult().getCode()) {
-            throw new IllegalException(transactionExtention.getResult().getMessage().toStringUtf8());
-        }
         return transactionExtention;
     }
 
@@ -1047,11 +1293,8 @@ public class LimitApiWrapper {
         AssetIssueContract.Builder builder = assetIssueContractBuilder(ownerAddress, name, abbr, totalSupply, trxNum, icoNum, startTime, endTime, url, freeAssetNetLimit,
                 publicFreeAssetNetLimit, precision, description);
 
-        TransactionExtention transactionExtention = blockingStub.createAssetIssue2(builder.build());
+        TransactionExtention transactionExtention = createTransactionExtention(builder.build(), Transaction.Contract.ContractType.AssetIssueContract);
 
-        if (SUCCESS != transactionExtention.getResult().getCode()) {
-            throw new IllegalException(transactionExtention.getResult().getMessage().toStringUtf8());
-        }
         return transactionExtention;
     }
 
@@ -1098,11 +1341,7 @@ public class LimitApiWrapper {
         UpdateAssetContract contract = createUpdateAssetContract(bsOwnerAddress,
                 bsDescription, bsUrl, newLimit, newPublicLimit);
 
-        TransactionExtention transactionExtention = blockingStub.updateAsset2(contract);
-
-        if (SUCCESS != transactionExtention.getResult().getCode()) {
-            throw new IllegalException(transactionExtention.getResult().getMessage().toStringUtf8());
-        }
+        TransactionExtention transactionExtention = createTransactionExtention(contract, Transaction.Contract.ContractType.UpdateAssetContract);
 
         return transactionExtention;
     }
@@ -1119,11 +1358,7 @@ public class LimitApiWrapper {
 
         UnfreezeAssetContract contract = createUnfreezeAssetContract(bsOwnerAddress);
 
-        TransactionExtention transactionExtention = blockingStub.unfreezeAsset2(contract);
-
-        if (SUCCESS != transactionExtention.getResult().getCode()) {
-            throw new IllegalException(transactionExtention.getResult().getMessage().toStringUtf8());
-        }
+        TransactionExtention transactionExtention = createTransactionExtention(contract, Transaction.Contract.ContractType.UnfreezeAssetContract);
 
         return transactionExtention;
     }
@@ -1137,11 +1372,8 @@ public class LimitApiWrapper {
      */
     public TransactionExtention accountPermissionUpdate(AccountPermissionUpdateContract contract) throws IllegalException {
 
-        TransactionExtention transactionExtention = blockingStub.accountPermissionUpdate(contract);
+        TransactionExtention transactionExtention = createTransactionExtention(contract, Transaction.Contract.ContractType.AccountPermissionUpdateContract);
 
-        if (SUCCESS != transactionExtention.getResult().getCode()) {
-            throw new IllegalException(transactionExtention.getResult().getMessage().toStringUtf8());
-        }
         return transactionExtention;
     }
 
@@ -1164,7 +1396,7 @@ public class LimitApiWrapper {
      * @param trx transaction object
      * @return TransactionApprovedList
      */
-    public TransactionApprovedList getTransactionApprovedList(Transaction trx) throws InvalidProtocolBufferException {
+    public TransactionApprovedList getTransactionApprovedList(Transaction trx) {
 
         TransactionApprovedList transactionApprovedList = blockingStub.getTransactionApprovedList(trx);
 
@@ -1229,7 +1461,7 @@ public class LimitApiWrapper {
      * @param address address, default hexString
      * @return NumberMessage
      */
-    public NumberMessage getRewardSolidity(String address) throws IllegalException {
+    public NumberMessage getRewardSolidity(String address) {
         ByteString bsAddress = parseAddress(address);
         BytesMessage bytesMessage = BytesMessage.newBuilder()
                 .setValue(bsAddress)
@@ -1314,7 +1546,9 @@ public class LimitApiWrapper {
                         .setOwnerAddress(ownerAddr)
                         .setBrokerage(brokerage)
                         .build();
-        return blockingStub.updateBrokerage(upContract);
+        TransactionExtention transactionExtention = createTransactionExtention(upContract, Transaction.Contract.ContractType.UpdateBrokerageContract);
+
+        return transactionExtention;
     }
 
     public long getBrokerageInfo(String address) {

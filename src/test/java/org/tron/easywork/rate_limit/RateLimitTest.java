@@ -15,7 +15,8 @@ public class RateLimitTest {
     @Test
     public void test() throws InterruptedException {
         String key = "151b073fe0a76e0eb4e57b9a1cba94abd5cffb46202cb0cf6cf8b0b6296fc7ef";
-        LimitApiWrapper wrapper = LimitApiWrapper.ofShasta(key);
+        GrpcRateLimitInterceptor grpcRateLimitInterceptor = new GrpcRateLimitInterceptor(1, 1);
+        LimitApiWrapper wrapper = LimitApiWrapper.ofShasta(key,grpcRateLimitInterceptor);
 
         for (int i = 0; i < 50; i++) {
             final int x = i;
@@ -31,7 +32,8 @@ public class RateLimitTest {
     @Test
     public void testx() throws InterruptedException {
         String key = "151b073fe0a76e0eb4e57b9a1cba94abd5cffb46202cb0cf6cf8b0b6296fc7ef";
-        LimitApiWrapper wrapper = LimitApiWrapper.ofShasta(key);
+        GrpcRateLimitInterceptor grpcRateLimitInterceptor = new GrpcRateLimitInterceptor(1, 1);
+        LimitApiWrapper wrapper = LimitApiWrapper.ofShasta(key,grpcRateLimitInterceptor);
 
         for (int i = 0; i < 10; i++) {
             Response.Account account = wrapper.getAccount("TTTTT4YrkRB5kc3SxEReBLiBDa89B1oGda");
