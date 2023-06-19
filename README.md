@@ -25,7 +25,6 @@
         <groupId>io.grpc</groupId>
         <artifactId>grpc-all</artifactId>
         <version>1.55.1</version>
-        <scope>provided</scope>
         <exclusions>
             <exclusion>
                 <groupId>commons-codec</groupId>
