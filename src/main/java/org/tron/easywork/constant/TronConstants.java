@@ -31,7 +31,8 @@ public final class TronConstants {
      * 等于【ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef】
      */
     public static final String TRANSFER_EVENT_BY_KECCAK256 =
-            Hex.toHexString(new Keccak.Digest256().digest("Transfer(address,address,uint256)".getBytes()));
+            Hex.toHexString(new Keccak.Digest256().digest("Transfer(address,address,uint256)".getBytes()))
+                    .substring(0, 8);
 
     /**
      * 智能合约转账函数ID
@@ -47,22 +48,22 @@ public final class TronConstants {
     /**
      * Hex格式地址开头
      */
-    public static final String ADDRESS_HEX_PREFIX ="41";
+    public static final String ADDRESS_HEX_PREFIX = "41";
 
     /**
      * Base58格式地址开头
      */
-    public static final String ADDRESS_BASE58_PREFIX ="T";
+    public static final String ADDRESS_BASE58_PREFIX = "T";
 
     /**
      * Hex格式地址长度
      */
-    public static final int ADDRESS_HEX_LENGTH =42;
+    public static final int ADDRESS_HEX_LENGTH = 42;
 
     /**
      * Base58格式地址长度
      */
-    public static final int ADDRESS_BASE58_LENGTH =34;
+    public static final int ADDRESS_BASE58_LENGTH = 34;
 
 
 }
