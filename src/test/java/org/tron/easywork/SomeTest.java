@@ -75,6 +75,17 @@ public class SomeTest extends BaseTest {
     }
 
     /**
+     * 从区块ID中获取区块高度(未经大量测试)
+     */
+    @Test
+    public void getBlockHeightFromBlockId(){
+        String blockId="00000000032f44b1684f8a72488a3e74507b3efb918cf4ac9aeeadf0917b62d2";
+        String start=blockId.substring(0,blockId.length()-48);
+        long l = Long.parseLong(start, 16);
+        log.debug(String.valueOf(l));
+    }
+
+    /**
      * 解析trc10 资源名称
      */
     @Test
