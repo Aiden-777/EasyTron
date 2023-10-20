@@ -42,6 +42,13 @@
         <artifactId>commons-codec</artifactId>
         <version>1.16.0</version>
     </dependency>
+
+
+    <dependency>
+        <groupId>org.tron</groupId>
+        <artifactId>easywork</artifactId>
+        <version>2.3.0</version>
+    </dependency>
     
     <dependency>
         <groupId>org.bouncycastle</groupId>
