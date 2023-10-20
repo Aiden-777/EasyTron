@@ -19,12 +19,16 @@
 
 ```xml
 
-<dependencies>
+<properties>
+    <trident.version>0.8.0</trident.version>
+</properties>
 
+<dependencies>
+    
     <dependency>
         <groupId>io.grpc</groupId>
         <artifactId>grpc-all</artifactId>
-        <version>1.55.1</version>
+        <version>1.57.2</version>
         <exclusions>
             <exclusion>
                 <groupId>commons-codec</groupId>
@@ -32,40 +36,35 @@
             </exclusion>
         </exclusions>
     </dependency>
-
+    
     <dependency>
         <groupId>commons-codec</groupId>
         <artifactId>commons-codec</artifactId>
-        <version>1.15</version>
+        <version>1.16.0</version>
     </dependency>
     
     <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcprov-jdk18on</artifactId>
-        <version>1.73</version>
+        <version>1.76</version>
     </dependency>
-
+    
     <dependency>
         <groupId>org.tron.trident</groupId>
         <artifactId>abi</artifactId>
-        <version>0.6.0</version>
+        <version>${trident.version}</version>
     </dependency>
+    
     <dependency>
         <groupId>org.tron.trident</groupId>
         <artifactId>utils</artifactId>
-        <version>0.6.0</version>
+        <version>${trident.version}</version>
     </dependency>
     <dependency>
         <groupId>org.tron.trident</groupId>
         <artifactId>core</artifactId>
-        <version>0.6.0</version>
+        <version>${trident.version}</version>
     </dependency>
-
-    <dependency>
-        <groupId>org.tron.easywork</groupId>
-        <artifactId>core</artifactId>
-        <version>2.2</version>
-    </dependency>
-
+    
 </dependencies>
 ```

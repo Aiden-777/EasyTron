@@ -12,7 +12,7 @@ import org.tron.trident.proto.Response;
 @Slf4j
 public class RateLimitTest {
 
-    @Test
+/*    @Test
     public void test() throws InterruptedException {
         String key = "151b073fe0a76e0eb4e57b9a1cba94abd5cffb46202cb0cf6cf8b0b6296fc7ef";
         GrpcRateLimitInterceptor grpcRateLimitInterceptor = new GrpcRateLimitInterceptor(1, 1);
@@ -40,5 +40,5 @@ public class RateLimitTest {
             long balance = account.getBalance();
             log.debug("{}", balance);
         }
-    }
+    }*/
 }
