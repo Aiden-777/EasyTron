@@ -112,11 +112,16 @@ public class Trc20ContractUtil {
         // 发送金额
         String amount = data.substring(72, 136);
         try {
-            Address addressType = (Address) TypeDecoder.instantiateType(new TypeReference<Address>() {
+
+            Address address = TypeDecoder.decodeAddress(toAddress);
+            NumericType numericType = TypeDecoder.decodeNumeric(amount,Uint256.class);
+            return new TransferFunctionParam(address.getValue(), new BigDecimal(numericType.getValue()));
+
+            /*Address addressType = (Address) TypeDecoder.instantiateType(new TypeReference<Address>() {
             }, toAddress);
             NumericType amountType = (NumericType) TypeDecoder.instantiateType(new TypeReference<Uint256>() {
             }, amount);
-            return new TransferFunctionParam(addressType.getValue(), new BigDecimal(amountType.getValue()));
+            return new TransferFunctionParam(addressType.getValue(), new BigDecimal(amountType.getValue()));*/
         } catch (Exception e) {
             throw new SmartParamDecodeException("智能合约转账函数参数异常(ABI解码错误):" + data, e.getCause());
         }
