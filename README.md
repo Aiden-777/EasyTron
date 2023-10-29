@@ -21,39 +21,15 @@
 
 <properties>
     <trident.version>0.8.0</trident.version>
+    <grpc.version>1.57.2</grpc.version>
 </properties>
 
 <dependencies>
-    
-    <dependency>
-        <groupId>io.grpc</groupId>
-        <artifactId>grpc-all</artifactId>
-        <version>1.57.2</version>
-        <exclusions>
-            <exclusion>
-                <groupId>commons-codec</groupId>
-                <artifactId>commons-codec</artifactId>
-            </exclusion>
-        </exclusions>
-    </dependency>
-    
-    <dependency>
-        <groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
-        <version>1.16.0</version>
-    </dependency>
-
 
     <dependency>
         <groupId>org.tron</groupId>
         <artifactId>easywork</artifactId>
         <version>2.3.0</version>
-    </dependency>
-    
-    <dependency>
-        <groupId>org.bouncycastle</groupId>
-        <artifactId>bcprov-jdk18on</artifactId>
-        <version>1.76</version>
     </dependency>
     
     <dependency>
@@ -71,6 +47,38 @@
         <groupId>org.tron.trident</groupId>
         <artifactId>core</artifactId>
         <version>${trident.version}</version>
+    </dependency>
+    
+    
+    <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcprov-jdk18on</artifactId>
+        <version>1.76</version>
+    </dependency>
+    <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-netty-shaded</artifactId>
+        <version>${grpc.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-netty</artifactId>
+        <version>${grpc.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-okhttp</artifactId>
+        <version>${grpc.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-protobuf</artifactId>
+        <version>${grpc.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-stub</artifactId>
+        <version>${grpc.version}</version>
     </dependency>
     
 </dependencies>
