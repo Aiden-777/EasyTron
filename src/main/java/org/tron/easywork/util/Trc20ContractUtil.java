@@ -107,21 +107,42 @@ public class Trc20ContractUtil {
             throw new FunctionSelectorException(funcId + "不是标准转账函数！");
         }
         // 收款人地址
-        /*String toAddress = data.substring(8, 72);*/
+        String toAddress = data.substring(8, 72);
+        // 发送金额
+        String amount = data.substring(72, 136);
+        try {
+            Address address = TypeDecoder.decodeAddress(toAddress);
+            NumericType numericType = TypeDecoder.decodeNumeric(amount,Uint256.class);
+            return new TransferFunctionParam(address.getValue(), new BigDecimal(numericType.getValue()));
+        } catch (Exception e) {
+            throw new SmartParamDecodeException("智能合约转账函数参数异常(ABI解码错误):" + data, e.getCause());
+        }
+    }
+
+    /**
+     * 智能合约转账函数数据解析
+     *
+     * @param data triggerSmartContract.data
+     * @return 转账数据(到账地址 、 金额)
+     * @throws FunctionSelectorException 函数选择器错误
+     * @throws SmartParamDecodeException 转账数据解析错误
+     */
+    public static TransferFunctionParam getTransferFunctionParam2(String data) throws FunctionSelectorException, SmartParamDecodeException {
+        // 函数选择器，必须为【a9059cbb】
+        String funcId = data.substring(0, 8);
+        if (!TronConstants.TRANSFER_FUNC_ID_BY_KECCAK256.equals(funcId)) {
+            throw new FunctionSelectorException(funcId + "不是标准转账函数！");
+        }
+        // 收款人地址
         String toAddress = data.substring(32, 72);
         // 发送金额
         String amount = data.substring(72, 136);
         try {
-
-            Address address = TypeDecoder.decodeAddress(toAddress);
-            NumericType numericType = TypeDecoder.decodeNumeric(amount,Uint256.class);
-            return new TransferFunctionParam(address.getValue(), new BigDecimal(numericType.getValue()));
-
-            /*Address addressType = (Address) TypeDecoder.instantiateType(new TypeReference<Address>() {
+            Address addressType = (Address) TypeDecoder.instantiateType(new TypeReference<Address>() {
             }, toAddress);
             NumericType amountType = (NumericType) TypeDecoder.instantiateType(new TypeReference<Uint256>() {
             }, amount);
-            return new TransferFunctionParam(addressType.getValue(), new BigDecimal(amountType.getValue()));*/
+            return new TransferFunctionParam(addressType.getValue(), new BigDecimal(amountType.getValue()));
         } catch (Exception e) {
             throw new SmartParamDecodeException("智能合约转账函数参数异常(ABI解码错误):" + data, e.getCause());
         }
