@@ -35,6 +35,14 @@ import java.nio.charset.StandardCharsets;
 @Slf4j
 public class SomeTest extends BaseTest {
 
+    @Test
+    public void hexAddressToBase58() {
+        String hexStr = "41b6cb08800483ad904d43df53cec7a8d866ed1d95";
+        byte[] decode = Hex.decode(hexStr);
+        String base58 = Base58Check.bytesToBase58(decode);
+        log.debug(base58);
+    }
+
     /**
      * 地址格式转换
      */
@@ -52,6 +60,15 @@ public class SomeTest extends BaseTest {
     @Test
     public void isTronAddress() {
         String address = "TP6QorvxAJ4bXg21LterCpGi5oZ2PxybCZ";
+
+        try {
+            // 推荐
+            ApiWrapper.parseAddress(address);
+        } catch (Exception e) {
+            log.error("地址错误");
+        }
+
+        // 非严谨
         boolean isAddress = AccountUtils.isTronAddress(address);
         log.debug("是否为正确的Tron地址：{}", isAddress);
     }
@@ -78,9 +95,9 @@ public class SomeTest extends BaseTest {
      * 从区块ID中获取区块高度(未经大量测试)
      */
     @Test
-    public void getBlockHeightFromBlockId(){
-        String blockId="00000000032f44b1684f8a72488a3e74507b3efb918cf4ac9aeeadf0917b62d2";
-        String start=blockId.substring(0,blockId.length()-48);
+    public void getBlockHeightFromBlockId() {
+        String blockId = "00000000032f44b1684f8a72488a3e74507b3efb918cf4ac9aeeadf0917b62d2";
+        String start = blockId.substring(0, blockId.length() - 48);
         long l = Long.parseLong(start, 16);
         log.debug(String.valueOf(l));
     }
@@ -298,6 +315,7 @@ public class SomeTest extends BaseTest {
         log.debug("{}", TronConverter.hexToInt("430e1b7"));
 
     }
+
     // 转化十六进制编码为字符串
     public String toStringHex(String s) {
         byte[] baKeyword = new byte[s.length() / 2];

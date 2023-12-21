@@ -27,6 +27,7 @@ public class AccountUtils {
 
     /**
      * 检查是否为正确的Tron地址
+     * 非严谨的方法
      *
      * @param address 地址
      * @return b
