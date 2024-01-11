@@ -42,6 +42,7 @@ public class ReadBlockTest extends BaseTest {
         // 区块ID
         String blockId = BlockUtil.parseBlockId(nowBlock);
         log.info("区块ID：{}", blockId);
+        log.info("区块高度：{}", nowBlock.getBlockHeader().getRawData().getNumber());
         if (nowBlock.getTransactionsCount() <= 0) {
             log.debug("交易数量为0");
             return;
@@ -154,6 +155,5 @@ public class ReadBlockTest extends BaseTest {
             }
         });
     }
-
 
 }

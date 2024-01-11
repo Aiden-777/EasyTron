@@ -171,7 +171,8 @@ public class LocalTransferTest extends BaseTest {
                     .setContractAddress(ApiWrapper.parseAddress(transfer.getContractAddress()))
                     .setData(ApiWrapper.parseHex(encodedHex))
                     .build();
-        } else if (contractType == Chain.Transaction.Contract.ContractType.TransferAssetContract) {
+        }
+        else if (contractType == Chain.Transaction.Contract.ContractType.TransferAssetContract) {
             // 构造trc10合约信息
             message = org.tron.trident.proto.Contract.TransferAssetContract.newBuilder()
                     .setAmount(transfer.getAmount().longValue())
@@ -179,14 +180,16 @@ public class LocalTransferTest extends BaseTest {
                     .setToAddress(ApiWrapper.parseAddress(transfer.getTo()))
                     .setAssetName(ByteString.copyFrom(transfer.getAssetName().toByteArray()))
                     .build();
-        } else if (contractType == Chain.Transaction.Contract.ContractType.TransferContract) {
+        }
+        else if (contractType == Chain.Transaction.Contract.ContractType.TransferContract) {
             // 构造trx转账合约
             message = org.tron.trident.proto.Contract.TransferContract.newBuilder()
                     .setAmount(transfer.getAmount().longValue())
                     .setOwnerAddress(ApiWrapper.parseAddress(transfer.getFrom()))
                     .setToAddress(ApiWrapper.parseAddress(transfer.getTo()))
                     .build();
-        } else {
+        }
+        else {
             return;
         }
 
