@@ -312,7 +312,7 @@ public class SomeTest extends BaseTest {
 
         log.debug("name:{}", this.toStringHex("55534454"));
 
-        log.debug("{}", TronConverter.hexToInt("430e1b7"));
+        // log.debug("{}", TronConverter.hexToInt("430e1b7"));
 
     }
 

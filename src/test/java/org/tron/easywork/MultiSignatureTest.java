@@ -97,6 +97,7 @@ public class MultiSignatureTest extends BaseTest {
 
     /**
      * 活跃权限多签
+     *
      * @throws IllegalException
      */
     @Test
@@ -149,8 +150,8 @@ public class MultiSignatureTest extends BaseTest {
      */
     @Test
     public void permissionUpdate() throws IllegalException {
-        //TKjPqKq77777FPKUdLRMPNUWtU4jNEpUQF
-        String privateKey = "e9144533f0edf1a9f59025847db267572a741bf7604ed73d4ec156c12e474886";
+        // TKjPqKq77777FPKUdLRMPNUWtU4jNEpUQF
+        String privateKey = "e9144533f0edf1a....................ec156c12e474886";
 
         // 分配给 1
         String permissionAddress1 = "TBjxJTNwZeaKrbHyDum5Rwj1xU99999n8Z";

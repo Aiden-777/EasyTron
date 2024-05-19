@@ -58,7 +58,7 @@ public class TransferTest extends BaseTest {
     @Test
     public void transferTrx_trident() throws IllegalException {
         // trx 个数
-        BigDecimal realAmount = BigDecimal.valueOf(1);
+        BigDecimal realAmount = BigDecimal.valueOf(30);
         // sun 个数
         BigDecimal sun = Convert.toSun(realAmount, Convert.Unit.TRX);
 
