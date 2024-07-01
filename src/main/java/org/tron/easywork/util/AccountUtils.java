@@ -37,13 +37,13 @@ public class AccountUtils {
             if (address.startsWith(TronConstants.ADDRESS_BASE58_PREFIX) && address.length() == TronConstants.ADDRESS_BASE58_LENGTH) {
                 Base58Check.base58ToBytes(address);
                 return true;
-            } else if (address.startsWith(TronConstants.ADDRESS_HEX_PREFIX) && address.length() == TronConstants.ADDRESS_HEX_LENGTH) {
+            }
+            else if (address.startsWith(TronConstants.ADDRESS_HEX_PREFIX) && address.length() == TronConstants.ADDRESS_HEX_LENGTH) {
                 Hex.decode(address);
                 return true;
             }
             return false;
         } catch (Exception e) {
-            e.printStackTrace();
             return false;
         }
     }
