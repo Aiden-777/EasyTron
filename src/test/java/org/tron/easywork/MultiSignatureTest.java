@@ -276,7 +276,7 @@ public class MultiSignatureTest extends BaseTest {
 
 
     /**
-     * 多签质押演示
+     * 多签质押演示 - v1
      */
     @Test
     public void freezeBalance() throws IllegalException {
