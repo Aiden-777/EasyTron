@@ -327,7 +327,7 @@ public class SomeTest extends BaseTest {
             }
         }
         try {
-            s = new String(baKeyword, StandardCharsets.UTF_8);//UTF-16le:Not
+            s = new String(baKeyword, StandardCharsets.UTF_8);// UTF-16le:Not
         } catch (Exception e1) {
             e1.printStackTrace();
         }
