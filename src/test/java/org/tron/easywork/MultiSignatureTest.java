@@ -44,13 +44,13 @@ public class MultiSignatureTest extends BaseTest {
      */
     @Test
     public void multiSignature_trident() throws IllegalException {
-        // TKjPqKq77777FPKUdLRMPNUWtU4jNEpUQF   主账号，业务所致此处未用到私钥
+        // A   主账号
         AccountInfo account = new AccountInfo("");
 
-        // TBjxJTNwZeaKrbHyDum5Rwj1xU99999n8Z   具有某些活动权限
+        // B   具有某些活动权限
         AccountInfo account1 = new AccountInfo("");
 
-        // TEczEK6uzD88888QhstH6QDwB167ZsXPrb   具有某些活动权限
+        // C   具有某些活动权限
         AccountInfo account2 = new AccountInfo("");
 
         ApiWrapper wrapper = ApiWrapperFactory.create(ApiWrapperFactory.NetType.Shasta, account.getHexPrivateKey(), null);
@@ -68,7 +68,7 @@ public class MultiSignatureTest extends BaseTest {
 
         // 交易构造器
         Chain.Transaction.Builder transactionBuilder = transfer.getTransaction().toBuilder();
-        // 使用2号活跃权限
+        // 使用2号活跃权限 （B5 + C5 = 阈值10）
         transactionBuilder.getRawDataBuilder().getContractBuilder(0).setPermissionId(2);
 
         // 交易
@@ -230,13 +230,13 @@ public class MultiSignatureTest extends BaseTest {
      */
     @Test
     public void multiSignature() throws IllegalException {
-        // TKjPqKq77777FPKUdLRMPNUWtU4jNEpUQF   主账号，业务所致此处未用到私钥
+        // A   主账号
         AccountInfo account = new AccountInfo("");
 
-        // TBjxJTNwZeaKrbHyDum5Rwj1xU99999n8Z   具有某些活动权限
+        // B   具有某些活动权限
         AccountInfo account1 = new AccountInfo("");
 
-        // TEczEK6uzD88888QhstH6QDwB167ZsXPrb   具有某些活动权限
+        // B   具有某些活动权限
         AccountInfo account2 = new AccountInfo("");
 
         // 到账地址
@@ -265,6 +265,7 @@ public class MultiSignatureTest extends BaseTest {
         Trc20TransferHandler trc20TransferHandler = new Trc20TransferHandler();
         // 构造本地交易
         Chain.Transaction transaction = trc20TransferHandler.buildLocalTransfer(transfer, referenceBlock);
+
         // 账号1签名
         Chain.Transaction signTransaction = wrapper.signTransaction(transaction, account1.getKeyPair());
         // 账号2签名
