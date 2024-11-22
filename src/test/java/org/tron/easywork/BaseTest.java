@@ -1,6 +1,7 @@
 package org.tron.easywork;
 
 import lombok.extern.slf4j.Slf4j;
+import org.tron.easywork.factory.ApiWrapperFactory;
 import org.tron.easywork.handler.transfer.TransferHandlerContext;
 import org.tron.easywork.handler.transfer.Trc10TransferHandler;
 import org.tron.easywork.handler.transfer.Trc20TransferHandler;
@@ -29,7 +30,13 @@ public class BaseTest {
     /**
      * trident API 包装器
      */
-    protected ApiWrapper wrapper = ApiWrapper.ofShasta(key);
+    // protected ApiWrapper wrapper = ApiWrapper.ofShasta(key);
+    protected ApiWrapper wrapper =  ApiWrapperFactory.create(
+            "54.188.45.204:50051",
+            "54.188.45.204:50051",
+            key,
+            ""
+    );
     /**
      * 转出地址
      */

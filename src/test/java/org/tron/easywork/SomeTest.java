@@ -1,5 +1,6 @@
 package org.tron.easywork;
 
+import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import lombok.extern.slf4j.Slf4j;
@@ -8,8 +9,10 @@ import org.junit.Test;
 import org.tron.easywork.exception.FunctionSelectorException;
 import org.tron.easywork.exception.SmartParamDecodeException;
 import org.tron.easywork.model.AccountInfo;
+import org.tron.easywork.model.Transfer;
 import org.tron.easywork.model.TransferFunctionParam;
 import org.tron.easywork.util.AccountUtils;
+import org.tron.easywork.util.TransferUtil;
 import org.tron.easywork.util.Trc20ContractUtil;
 import org.tron.easywork.util.TronConverter;
 import org.tron.trident.core.ApiWrapper;
@@ -74,7 +77,7 @@ public class SomeTest extends BaseTest {
     }
 
     /**
-     * 创建账号
+     * 创建新账户
      */
     @Test
     public void createAccount() {
@@ -83,7 +86,7 @@ public class SomeTest extends BaseTest {
     }
 
     /**
-     * 导入账号
+     * 私钥对应的账户详情
      */
     @Test
     public void importAccount() {
@@ -122,57 +125,138 @@ public class SomeTest extends BaseTest {
     }
 
     /**
-     * 交易签名思路
-     * 1.从远程获取交易信息 - hex 格式
-     * 2.获取交易ID
-     * 3.如果改变原交易数据，重新计算交易ID
-     * 4.对交易ID签名
-     * 5.广播
+     * 交易签名过程演示
      */
-    // @Test
+    @Test
     public void signApiTransaction() throws InvalidProtocolBufferException {
-        // API 提供的交易 https://api.shasta.trongrid.io/wallet/createtransaction
-        String raw_data_hex = "0a02c2282208445e76cd19765ba740c89df3ab9a305a67080112630a2d747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e5472616e73666572436f6e747261637412320a15411391667f4940d9f58d2779d92357e714f5bf3ea91215418ff66721e871b4ae9aa673fc15154f9c0deac27418c0843d70eaddefab9a30";
-
+        // 手动从API构造的交易 https://api.shasta.trongrid.io/wallet/createtransaction
+        // 这串hex格式字符串中包含了所有交易信息
+        String raw_data_hex = "0a023e9d2208290ec6ce431394c44085bcb0fab4325225e5a487e6b3a8efbc9a546875204e6f762032312031353a31363a34382043535420323032345ab001081f12a9010a31747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e54726967676572536d617274436f6e747261637412740a15416b147a03de98c2d2079753875344179dbcd49db81215413dff1aae5b4979a0067b001afdb34a9758ecaa832244a9059cbb0000000000000000000000004d8239a7557fc50472586547b555ecf529f0665400000000000000000000000000000000000000000000000000000000000f424028027085d4d2ecb432900180dac409";
+        // 解码
         byte[] raw_data = Hex.decode(raw_data_hex);
-
         // 交易id（即交易哈希，通过Transaction.rawData计算SHA256得到）
         byte[] txId = Hash.sha256(raw_data);
-        // 交易id_hex
-        log.debug("txId_hex:{}", Hex.toHexString(txId));
-
+        String txIdHex = Hex.toHexString(txId);
+        log.debug("txId:{}", txIdHex);
 
         // 构造raw对象
         Chain.Transaction.raw raw = Chain.Transaction.raw.parseFrom(raw_data);
 
-        // ---↓ 改变原始数据，后期添加备注，注意此操作需要重新计算交易ID
+        // ---↓ 如果改变原始交易数据，比如添加备注，此操作需要重新计算交易ID，否则会“签了个寂寞”
         raw = raw.toBuilder()
+                // 添加备注
                 .setData(ByteString.copyFromUtf8("hello"))
                 .build();
+        // 重新计算交易id
         txId = Hash.sha256(raw.toByteArray());
-        log.debug("newId_hex:{}", Hex.toHexString(txId));
-        // ---↑ 如果前期就添加了、或无需备注，则忽略以上块
+        txIdHex = Hex.toHexString(txId);
+        log.debug("new txId:{}", txIdHex);
+        // ---↑ 以上只是提醒你修改原始数据，交易ID也会改变，而签名签的就是交易ID
 
-        // 对 txid 进行签名
-        byte[] sign = KeyPair.signTransaction(txId, wrapper.keyPair);
+        // 对交易ID进行签名
+        byte[] sign = KeyPair.signTransaction(txId, new KeyPair("your private key"));
+        // 构造交易对象（设置 raw数据、签名数据 ）
+        Chain.Transaction signedTransaction =
+                Chain.Transaction.newBuilder()
+                        .setRawData(raw)
+                        // 添加签名
+                        .addSignature(ByteString.copyFrom(sign))
+                        .build();
 
-        // 构造transaction对象（设置 raw数据、-签名数据- ）
-        Chain.Transaction signTransaction = Chain.Transaction.newBuilder()
-                .setRawData(raw).addSignature(ByteString.copyFrom(sign)).build();
+        // 你也可以这样签名（在删掉 addSignature 的情况下，除非是多签）
+        // 项目中一般都多用这种方式
+        // Chain.Transaction signedTransaction =  wrapper.signTransaction(unsignedTransaction, new KeyPair("your private key"));
 
-        // 签名交易(如果该交易已经签名不能重复签，除非用到不同privateKey多签)
-        // Chain.Transaction signTransaction = wrapper.signTransaction(transaction);
-
-        // 交易bytes
-        byte[] signTransactionBytes = signTransaction.toByteArray();
-        // 交易 hex
-        String signTransaction_hex = Hex.toHexString(signTransactionBytes);
-        log.debug("signTransaction_hex:{}", signTransaction_hex);
-
-        // 广播并返回 交易id
-        String id = wrapper.broadcastTransaction(signTransaction);
+        // 广播并返回 交易ID
+        String id = wrapper.broadcastTransaction(signedTransaction);
         log.debug(id);
     }
+
+
+    /**
+     * 对前端发来的多签交易验证并签名
+     * 前端创建交易，后端验证并签名，将签名发给前端组装广播
+     */
+    @Test
+    public void signRawDataHex() throws InvalidProtocolBufferException {
+        // 将交易参数发给前端
+        // ……
+
+        // 前端根据参数构造交易，并将 raw_data_hex 发到此处
+        String raw_data_hex = "0a02be69220876fa7aba2bcc89f54090ebfc9bb5325ab001081f12a9010a31747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e54726967676572536d617274436f6e747261637412740a15416b147a03de98c2d2079753875344179dbcd49db81215413dff1aae5b4979a0067b001afdb34a9758ecaa832244a9059cbb0000000000000000000000004d8239a7557fc50472586547b555ecf529f0665400000000000000000000000000000000000000000000000000000000000f4240280270eaa1f99bb532900180ade204";
+        // hex解码
+        byte[] raw_data = Hex.decode(raw_data_hex);
+
+        // 构造raw对象
+        Chain.Transaction.raw raw = Chain.Transaction.raw.parseFrom(raw_data);
+
+        // 开始校验前端是否按照指定交易信息构造交易
+        // 合约信息
+        Chain.Transaction.Contract contract = raw.getContract(0);
+        // 检查权限id
+        boolean permissionIdCheck = contract.getPermissionId() == 2;
+        // 检查交易类型
+        Chain.Transaction.Contract.ContractType contractType = contract.getType();
+        boolean typeCheck = contract.getType() == Chain.Transaction.Contract.ContractType.TransferContract;
+
+        // 解码并检查合约中的详细参数（纯演示，无具体逻辑。正常是比较复杂的，应采用策略模式或提取到不同的方法中去处理）
+        Any parameter = contract.getParameter();
+        if (contractType == Chain.Transaction.Contract.ContractType.TriggerSmartContract) {
+            try {
+                log.debug("这是智能合约交易");
+                // 解码
+                org.tron.trident.proto.Contract.TriggerSmartContract triggerSmartContract =
+                        parameter.unpack(org.tron.trident.proto.Contract.TriggerSmartContract.class);
+                // 获取交易详情
+                Transfer transfer = TransferUtil.getTransferInfo(triggerSmartContract);
+                log.debug("类型：{}\t到账地址：{}\t金额：{}", transfer.getTransferType(), transfer.getTo(), transfer.getAmount());
+                // 检查......
+            } catch (InvalidProtocolBufferException e) {
+                log.debug("unpack解包异常");
+                e.printStackTrace();
+            } catch (SmartParamDecodeException e) {
+                log.debug("智能合约 转账参数 数据解析异常");
+                e.printStackTrace();
+            } catch (FunctionSelectorException e) {
+                // 函数选择器错误
+            } catch (Exception e) {
+                log.error("兜底异常：{}", e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        // 如果是trx
+        else if (contractType == Chain.Transaction.Contract.ContractType.TransferContract) {
+            try {
+                log.debug("这是TRX交易");
+                org.tron.trident.proto.Contract.TransferContract unpack = parameter.unpack(org.tron.trident.proto.Contract.TransferContract.class);
+                Transfer transferInfo = TransferUtil.getTransferInfo(unpack);
+                // 检查......
+            } catch (InvalidProtocolBufferException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        // 假设检查无误，继续后续步骤
+
+        // 交易id（即交易哈希，通过Transaction.rawData计算SHA256得到）
+        byte[] txId = Hash.sha256(raw_data);
+        String txIdHex = Hex.toHexString(txId);
+        log.debug("txIdHex:{}", txIdHex);
+
+        // 对 txid 进行签名
+        byte[] sign = KeyPair.signTransaction(txId, new KeyPair("your private key"));
+
+        String signHex = Hex.toHexString(sign);
+        log.debug("================================");
+        log.debug("签名发给前端：");
+        log.debug(signHex);
+        log.debug("================================");
+
+        // 前端将签名组装后广播，得到链上答复后通知此处后端
+        // 前端对我说说：“交易已经正确广播”
+        // 开始监听交易id，如真实在链上发现此交易id，则代表订单已经完成
+    }
+
 
     /**
      * 计算交易带宽
@@ -228,7 +312,7 @@ public class SomeTest extends BaseTest {
     }
 
     /**
-     * 验证交易签名
+     * 验证交易签名（前端tronweb给的签名无法使用该方法验证，研究无果）
      */
     @Test
     public void verifyTransaction() throws IllegalException {
@@ -260,7 +344,8 @@ public class SomeTest extends BaseTest {
     }
 
     /**
-     * 解析trc20合约转账数据
+     * 解码TRC20合约转账数据
+     * 到账地址 + 转账金额
      */
     @Test
     public void parseData() throws SmartParamDecodeException, FunctionSelectorException {
@@ -271,6 +356,7 @@ public class SomeTest extends BaseTest {
 
     /**
      * 验证trc20交易是否成功
+     * 此处演示的txId均来自shasta测试网
      */
     @Test
     public void isSuccess() throws IllegalException {
