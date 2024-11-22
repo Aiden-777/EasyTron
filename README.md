@@ -22,8 +22,8 @@
 ```xml
 
 <properties>
-    <trident.version>0.9.0</trident.version>
-    <grpc.version>1.64.0</grpc.version>
+    <trident.version>0.9.1</trident.version>
+    <grpc.version>1.66.0</grpc.version>
 </properties>
 
 <dependencies>
@@ -31,7 +31,7 @@
     <dependency>
         <groupId>org.tron</groupId>
         <artifactId>easywork</artifactId>
-        <version>2.3.2</version>
+        <version>2.5</version>
     </dependency>
     
     <dependency>
